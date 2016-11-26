@@ -31,8 +31,9 @@ class Application:
         instances of loaded components.
         """
         d = {}
-        d[self.loaded_component[0]] = self.loaded_component[3]
-        print d
+        for i in self.loaded_component:
+            d[i[0]] = i[3].description()
+        return d
 
     def load(self,compid):
         """
@@ -110,4 +111,4 @@ if __name__ == "__main__":
    app = Application()
    # print app.avaliable()
    app.load('resize')
-   #app.loaded()
+   app.loaded()
