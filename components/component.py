@@ -3,6 +3,9 @@
 
 
 class Component:
+    """
+    The Component interface
+    """
 
     def description(self):
         """
@@ -40,8 +43,8 @@ class Component:
         methods return a list of method calls and their descriptions. The methods define the behaviour of the 
         component at execution time. This way, application can interact with the components. RSS reader 
         can return [(’getpage’, ’Changes␣current␣page␣to␣given␣page␣no’)] so that user can go to arbitrary
-         pages on reader. getpage() should be implemented on the RSS reader component
-    class.
+        pages on reader. getpage() should be implemented on the RSS reader component
+        class.
         """
         pass
 

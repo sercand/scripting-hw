@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import components
 
 
 class Application:
@@ -11,6 +12,7 @@ class Application:
         at run-time. Components can be installed even after the application started.
         A sample output could be [’rss’,’mblog’] indicating rss .py and mblog.py exists in the component directory.
         """
+        # todo load libraries inside components folder
         pass
 
     def loaded(self):
@@ -78,7 +80,7 @@ class Application:
     def execute(self):
         """
         This is the application execution mode. It will execute all added component
-         instances and generate the collective result. In web project it can be the whole 
-         HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
+        instances and generate the collective result. In web project it can be the whole 
+        HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
         """
         pass
