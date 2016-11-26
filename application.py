@@ -4,10 +4,14 @@ import components
 import os
 import imp
 import inspect
+import design
+import json
+
+
 class Application:
 
     def __init__(self):
-        self.loaded_component=[]
+        self.loaded_component = []
 
     def avaliable(self):
         """
@@ -19,7 +23,7 @@ class Application:
         # todo load libraries inside components folder
         available_list = []
         for root, dirs, files in os.walk("components"):
-            for file in files: 
+            for file in files:
                 if (file.endswith(".py") and file != "__init__.py" and file != "component.py"):
                     available_list.append(file[:-3])
         return available_list
@@ -34,7 +38,7 @@ class Application:
         d[self.loaded_component[0]] = self.loaded_component[3]
         print d
 
-    def load(self,compid):
+    def load(self, compid):
         """
         load() is similar to Python import however it searches the module in component path. It keeps
         track of the component loaded and the class implementing the component so that instances can be created.
@@ -65,14 +69,27 @@ class Application:
         """
         pass
 
-    def loadDesign(self):
+    def loadDesign(self, path):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design 
         should load() all required components and create all instances with their configured attributes.
         """
-        pass
+        d = design.Design()
+        with open(path, 'r') as f:
+            ds = json.load(f)
+            for x in ds.cmps:
+                r = self.load(x.cmp)
+                cc = r[3]()
+                de = design.DesignEntry(cc, x.cmp)
 
-    def saveDesign(self):
+#        for x in self.cmps:
+#           cmps.append({"id": x.id,
+#                         "cmp": x.cmp_name,
+#                         "method": x.method,
+#                         "args": x.component.__dict__})
+#
+
+    def saveDesign(self, path):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design 
         should load() all required components and create all instances with their configured attributes.
@@ -107,7 +124,7 @@ class Application:
 
 
 if __name__ == "__main__":
-   app = Application()
-   # print app.avaliable()
-   app.load('resize')
-   #app.loaded()
+    app = Application()
+    # print app.avaliable()
+    app.load('resize')
+    # app.loaded()
