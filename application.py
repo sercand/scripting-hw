@@ -62,7 +62,12 @@ class Application:
         This method is used by application to call methods of the component instances.
         callMethod(’rss1231’,’refresh’,None) will call refresh () of the identified RSS component.        
         """
-        pass
+        cmp = self.design.get_cmp(id)
+        getattr(cmp,methodname)(params)
+        
+        
+        #print cmp
+
 
     def execute(self):
         """
@@ -149,10 +154,12 @@ class Application:
 if __name__ == "__main__":
     app = Application()
     # print app.avaliable()
-    app.avaliable()
-    app.load('resize')
-    app.loaded()
+    print app.avaliable()
+    print app.load('resize')
+    print app.loaded()
     a = app.addInstance('resize', 0)
     print app.addInstance('resize', 1)
     print app.instances()
+    app.callMethod(a,'resize',None)
     app.removeInstance(a)
+    print app.instances()
