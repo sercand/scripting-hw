@@ -2,8 +2,12 @@
 # -*- coding: utf-8 -*-
 import components
 import os
-
+import imp
+import inspect
 class Application:
+
+    def __init__(self):
+        self.loaded_component=[]
 
     def avaliable(self):
         """
@@ -26,14 +30,25 @@ class Application:
         A sample output could be {’rss’:’RSS␣reader’,’mblog’:’A␣tiny␣microblog’}. Application can add
         instances of loaded components.
         """
-        pass
+        d = {}
+        d[self.loaded_component[0]] = self.loaded_component[3]
+        print d
 
-    def load(self):
+    def load(self,compid):
         """
         load() is similar to Python import however it searches the module in component path. It keeps
         track of the component loaded and the class implementing the component so that instances can be created.
         """
-        pass
+        themodule = imp.load_source(compid, "components/" + compid + ".py")
+        className = None
+        for xn, obj in inspect.getmembers(themodule):
+            if inspect.isclass(obj):
+                if str(obj).startswith(compid):
+                    className = str(obj).split('.')[1]
+        class_ = getattr(themodule, className)
+        ret = (compid, themodule, className, class_())
+        self.loaded_component.append(ret)
+        return ret
 
     def callMethod(self, id, methodname, params):
         """
@@ -89,3 +104,10 @@ class Application:
         removeInstance will remove a component instance from the current design.
         """
         pass
+
+
+if __name__ == "__main__":
+   app = Application()
+   # print app.avaliable()
+   app.load('resize')
+   #app.loaded()
