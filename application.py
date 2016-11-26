@@ -121,7 +121,7 @@ class Application:
                 de = design.DesignEntry(cc, componentname)
                 de.index = index
                 self.design.push(de)
-                return de.index
+                return de.id
         return None
 
     def instances(self):
