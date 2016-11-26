@@ -1,16 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class Application:
 
-    def avaliable():
+    def avaliable(self):
         """
         Lists the names of the available components. Application has a directory path containing python module files for the components. available method return list of such components at run-time. Components can be installed even after the application started.
         A sample output could be [’rss’,’mblog’] indicating rss .py and mblog.py exists in the component directory.
         """
         pass
 
-    def loaded():
+    def loaded(self):
         """
         Returns a dictionary of the names and descriptions of the loaded components.
         A sample output could be {’rss’:’RSS␣reader’,’mblog’:’A␣tiny␣microblog’}. Application can add
@@ -18,31 +19,31 @@ class Application:
         """
         pass
 
-    def load():
+    def load(self):
         """
         load() is similar to Python import however it searches the module in component path. It keeps track of the component loaded and the class implementing the component so that instances can be created.
         """
         pass
 
-    def loadDesign():
+    def loadDesign(self):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design should load() all required components and create all instances with their configured attributes.
         """
         pass
 
-    def saveDesign():
+    def saveDesign(self):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design should load() all required components and create all instances with their configured attributes.
         """
         pass
 
-    def addInstance():
+    def addInstance(self):
         """
 addInstance will create an instance from a loaded component and place it on given coordinates. The coordinates can be on a grid, on a column or row layout. x and y parameters can be modified or new parameters can be added as you need.
 addInstance should return a string id for the created component instance. Later calls will refer to this id when they need to access the component.        """
         pass
 
-    def instances():
+    def instances(self):
         """
         instances return the current set of components in the application as a dictionary. The returned dictionary will have the component instance id as the key and component name and its position in a tuple as the value.
 3
@@ -51,18 +52,18 @@ addInstance should return a string id for the created component instance. Later 
         """
         pass
 
-    def removeInstance():
+    def removeInstance(self):
         """
         removeInstance will remove a component instance from the current design.
         """
         pass
 
-    def callMethod():
+    def callMethod(self):
         """
         This method is used by application to call methods of the component instances. callMethod(’rss1231’,’refresh’,None) will call refresh () of the identified RSS component.        """
         pass
 
-    def execute():
+    def execute(self):
         """
         This is the application execution mode. It will execute all added component instances and generate the collective result. In web project it can be the whole HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
         """
