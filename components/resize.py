@@ -1,7 +1,10 @@
-import component
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from component import Component
 
 
-class Resize(component.Component):
+class Resize(Component):
     """
     Resize image
     """
@@ -19,23 +22,18 @@ class Resize(component.Component):
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        pass
+        return [('width', 'int'), ('height', 'int')]
 
-    def getitem(self):
-        """
-        Component attribute values should be set and get by square bracket selector. For example 
-        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
-        Setting and/or getting a non-existing attribute should raise an exception of your choice.
-        """
-        pass
+    def __setitem__(self, key, item):
+        if not (key == "width" or key == "height"):
+            raise Exception(key + ' key is invalid')
+        if not isinstance(item, int):
+            raise Exception(key + ' is invalid type')
 
-    def setitem(self):
-        """
-        Component attribute values should be set and get by square bracket selector. For example 
-        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
-        Setting and/or getting a non-existing attribute should raise an exception of your choice.
-        """
-        pass
+        self.__dict__[key] = item
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
 
     def methods(self):
         """
@@ -44,7 +42,7 @@ class Resize(component.Component):
         can return [(’getpage’, ’Changes␣current␣page␣to␣given␣page␣no’)] so that user can go to arbitrary
         pages on reader. getpage() should be implemented on the RSS reader componentclass.
         """
-        pass
+        return [('resize', 'Resizes the image')]
 
     def execute(self):
         """
@@ -54,3 +52,13 @@ class Resize(component.Component):
         is expected to call execute method of all added components to execute a design.
         """
         pass
+
+    def resize(self, image):
+        image.resize(self.__dict__['width'], self.__dict__['height'])
+
+
+if __name__ == "__main__":
+    resize = Resize()
+    resize["width"] = 60
+    resize["height"] = 60
+    print resize["width"], resize["height"], resize.__dict__
