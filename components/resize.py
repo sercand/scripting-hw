@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from component import Component
+from wand.image import Image
 
-
-class Resize(Component):
+class Resize():
     """
     Resize image
     """
@@ -29,7 +28,6 @@ class Resize(Component):
             raise Exception(key + ' key is invalid')
         if not isinstance(item, int):
             raise Exception(key + ' is invalid type')
-
         self.__dict__[key] = item
 
     def __getitem__(self, key):
