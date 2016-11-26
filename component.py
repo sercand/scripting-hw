@@ -21,14 +21,16 @@ class Component:
 
     def getitem(self):
         """
-        Component attribute values should be set and get by square bracket selector. For example rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
+        Component attribute values should be set and get by square bracket selector. For example 
+        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
         Setting and/or getting a non-existing attribute should raise an exception of your choice.
         """
         pass
 
     def setitem(self):
         """
-        Component attribute values should be set and get by square bracket selector. For example rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
+        Component attribute values should be set and get by square bracket selector. For example 
+        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
         Setting and/or getting a non-existing attribute should raise an exception of your choice.
         """
         pass
