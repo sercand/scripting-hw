@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from component import Component
 
-import component
 
-
-class Resize(component.Component):
+class Resize(Component):
     """
     Resize image
     """
@@ -43,8 +42,7 @@ class Resize(component.Component):
         can return [(’getpage’, ’Changes␣current␣page␣to␣given␣page␣no’)] so that user can go to arbitrary
         pages on reader. getpage() should be implemented on the RSS reader componentclass.
         """
-
-        pass
+        return [('resize', 'Resizes the image')]
 
     def execute(self):
         """
@@ -55,9 +53,12 @@ class Resize(component.Component):
         """
         pass
 
+    def resize(self, image):
+        image.resize(self.__dict__['width'], self.__dict__['height'])
+
 
 if __name__ == "__main__":
     resize = Resize()
-    resize["width"] = 3
-    resize["height"] = 5
+    resize["width"] = 60
+    resize["height"] = 60
     print resize["width"], resize["height"], resize.__dict__
