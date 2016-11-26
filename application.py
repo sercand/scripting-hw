@@ -4,10 +4,12 @@ import components
 import os
 import imp
 import inspect
+
+
 class Application:
 
     def __init__(self):
-        self.loaded_component=[]
+        self.loaded_component = []
 
     def avaliable(self):
         """
@@ -19,7 +21,7 @@ class Application:
         # todo load libraries inside components folder
         available_list = []
         for root, dirs, files in os.walk("components"):
-            for file in files: 
+            for file in files:
                 if (file.endswith(".py") and file != "__init__.py" and file != "component.py"):
                     available_list.append(file[:-3])
         return available_list
@@ -35,7 +37,7 @@ class Application:
             d[i[0]] = i[3].description()
         return d
 
-    def load(self,compid):
+    def load(self, compid):
         """
         load() is similar to Python import however it searches the module in component path. It keeps
         track of the component loaded and the class implementing the component so that instances can be created.
@@ -108,7 +110,7 @@ class Application:
 
 
 if __name__ == "__main__":
-   app = Application()
-   # print app.avaliable()
-   app.load('resize')
-   app.loaded()
+    app = Application()
+    # print app.avaliable()
+    app.load('resize')
+    app.loaded()
