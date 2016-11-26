@@ -86,7 +86,8 @@ class Application:
                 # create class instance
                 cc = getattr(r[1], r[2])()
                 # set args back
-                cc.__dict__ = x.args
+                for k, v in x.args.iteritems():
+                    cc[k] = v
                 # create entry
                 de = design.DesignEntry(cc, x.cmp)
                 # set saved id
