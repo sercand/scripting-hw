@@ -21,21 +21,11 @@ class Component:
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
         pass
-
-    def getitem(self):
-        """
-        Component attribute values should be set and get by square bracket selector. For example 
-        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
-        Setting and/or getting a non-existing attribute should raise an exception of your choice.
-        """
+    
+    def __setitem__(self, key, item):
         pass
 
-    def setitem(self):
-        """
-        Component attribute values should be set and get by square bracket selector. For example 
-        rss[’url’]=’http://a.com.tr/rss’ should set the URL of the RSS reader component named rss.
-        Setting and/or getting a non-existing attribute should raise an exception of your choice.
-        """
+    def __getitem__(self, key):
         pass
 
     def methods(self):
