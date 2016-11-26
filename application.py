@@ -4,12 +4,16 @@ import components
 import os
 import imp
 import inspect
+import json
+
+import design
 
 
 class Application:
 
     def __init__(self):
         self.loaded_component = []
+        self.design = design.Design()
 
     def avaliable(self):
         """
@@ -68,19 +72,30 @@ class Application:
         """
         pass
 
-    def loadDesign(self):
+    def loadDesign(self, path):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design 
         should load() all required components and create all instances with their configured attributes.
         """
-        pass
+        cmps = []
+        with open(path, 'r') as f:
+            d = json.load(f)
+            for x in d.cmps:
+                r = self.load(x.cmp)
+                cc = getattr(r[1], r[2])()
+                cc.__dict = x.args
+                de = design.DesignEntry(cc, x.cmp)
+                de.id = x.id
+                de.method = x.method
+                cmps.append(de)
+        self.design = cmps
 
-    def saveDesign(self):
+    def saveDesign(self, path):
         """
         A design can be saved and loaded from a file. The file format depends on you. Loading a design 
         should load() all required components and create all instances with their configured attributes.
         """
-        pass
+        self.design.save_to(path)
 
     def addInstance(self):
         """
