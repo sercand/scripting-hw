@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import components
-
+import os
 
 class Application:
 
@@ -13,7 +13,12 @@ class Application:
         A sample output could be [’rss’,’mblog’] indicating rss .py and mblog.py exists in the component directory.
         """
         # todo load libraries inside components folder
-        pass
+        available_list = []
+        for root, dirs, files in os.walk("components"):
+            for file in files: 
+                if (file.endswith(".py") and file != "__init__.py" and file != "component.py"):
+                    available_list.append(file[:-3])
+        return available_list
 
     def loaded(self):
         """

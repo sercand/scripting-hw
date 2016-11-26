@@ -5,7 +5,13 @@
         ".",
         "-p",
         "*_test.py"
-    ]
-,
-"python.unitTest.unittestEnabled": true
+    ],
+    "python.unitTest.unittestEnabled": true,
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/*.pyc":true
+    }
 }
