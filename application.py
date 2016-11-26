@@ -81,14 +81,22 @@ class Application:
         with open(path, 'r') as f:
             d = json.load(f)
             for x in d.cmps:
+                # load component
                 r = self.load(x.cmp)
+                # create class instance
                 cc = getattr(r[1], r[2])()
-                cc.__dict = x.args
+                # set args back
+                cc.__dict__ = x.args
+                # create entry
                 de = design.DesignEntry(cc, x.cmp)
+                # set saved id
                 de.id = x.id
+                # set method name
                 de.method = x.method
+                # add to list
                 cmps.append(de)
-        self.design = cmps
+
+        self.design.cmps = cmps
 
     def saveDesign(self, path):
         """
@@ -97,7 +105,7 @@ class Application:
         """
         self.design.save_to(path)
 
-    def addInstance(self):
+    def addInstance(self, componentname, index):
         """
         addInstance will create an instance from a loaded component and place it on given coordinates. The 
         coordinates can be on a grid, on a column or row layout. x and y parameters can be modified or new 
@@ -105,7 +113,15 @@ class Application:
         addInstance should return a string id for the created component instance. Later calls will refer to 
         this id when they need to access the component.        
         """
-        pass
+        for x in self.loaded_component:
+            if x[0] == componentname:
+                cc = getattr(x[1], x[2])()
+                # create entry
+                de = design.DesignEntry(cc, componentname)
+                de.index = index
+                self.design.push(de)
+                return de.index
+        return None
 
     def instances(self):
         """
@@ -115,17 +131,27 @@ class Application:
         METU Department of Computer Engineering
         {’rss1231’:(’rss’,0,1), ’rss1212’:(’rss’,1,1), ’mb121’:(’mblog’,2,1)}.
         """
-        pass
+        index = -1
+        r = {}
+        for x in self.design.cmps:
+            index += 1
+            r[x.id] = (x.cmp_name, index)
+        return r
 
-    def removeInstance(self):
+    def removeInstance(self, id):
         """
         removeInstance will remove a component instance from the current design.
         """
-        pass
+        self.design.remove(id)
 
 
 if __name__ == "__main__":
     app = Application()
     # print app.avaliable()
+    app.avaliable()
     app.load('resize')
     app.loaded()
+    a = app.addInstance('resize', 0)
+    print app.addInstance('resize', 1)
+    print app.instances()
+    app.removeInstance(a)

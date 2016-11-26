@@ -51,13 +51,11 @@ class Design:
                 return x.component
         raise Exception(id + ' not found')
 
-#    @staticmethod
-#    def load_from_file(path):
-#        cmps = []
-#        with open(path, 'r') as f:
-#            d = json.load(f)
-#            cmps = d.cmps
-#
-#        d = Design()
-#        d.cmps = cmps
-#        return d
+    def remove(self, id):
+        index = -1
+        for x in self.cmps:
+            index += 1
+            if x.id == id:
+                break
+        if index > -1:
+            self.cmps.pop(index)
