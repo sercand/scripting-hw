@@ -26,7 +26,22 @@ class Application:
     def load(self):
         """
         load() is similar to Python import however it searches the module in component path. It keeps
-         track of the component loaded and the class implementing the component so that instances can be created.
+        track of the component loaded and the class implementing the component so that instances can be created.
+        """
+        pass
+
+    def callMethod(self, id, methodname, params):
+        """
+        This method is used by application to call methods of the component instances.
+        callMethod(’rss1231’,’refresh’,None) will call refresh () of the identified RSS component.        
+        """
+        pass
+
+    def execute(self):
+        """
+        This is the application execution mode. It will execute all added component
+        instances and generate the collective result. In web project it can be the whole 
+        HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
         """
         pass
 
@@ -67,20 +82,5 @@ class Application:
     def removeInstance(self):
         """
         removeInstance will remove a component instance from the current design.
-        """
-        pass
-
-    def callMethod(self):
-        """
-        This method is used by application to call methods of the component instances.
-        callMethod(’rss1231’,’refresh’,None) will call refresh () of the identified RSS component.        
-        """
-        pass
-
-    def execute(self):
-        """
-        This is the application execution mode. It will execute all added component
-        instances and generate the collective result. In web project it can be the whole 
-        HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
         """
         pass

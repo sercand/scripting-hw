@@ -2,6 +2,9 @@ import component
 
 
 class Resize(component.Component):
+    """
+    Resize image
+    """
 
     def description(self):
         """
