@@ -8,6 +8,9 @@ class Resize():
     """
     Resize image
     """
+    def __init__(self):
+        self.exec_image = None
+        self.image_name = None
 
     def description(self):
         """
@@ -54,6 +57,7 @@ class Resize():
 
 
     def execute(self):
+        self.exec_image.save(filename=self.image_name)
         """
         execute method will result in execution of component body. Result depends on the component type. 
         A web application can generate HTML content where a graph based component gets all of inputs and 
@@ -62,16 +66,14 @@ class Resize():
         """
         pass
 
-    def resize(self, image):
-        #image.resize(self.__dict__['width'], self.__dict__['height'])
-        print "resize", image
-
     def get_image_with_filename(self,path):
         ret_image = Image(filename = path)
+        self.exec_image = ret_image
         return ret_image
 
     def get_image_with_url(self,url):
         ret_image = Image(filename = url)
+        self.exec_image = ret_image
         return ret_image
 
     def get_image_width(self,image):
@@ -82,22 +84,30 @@ class Resize():
 
     def resize_with_ratio(self,image,ratio,newName):
         image.resize(int(image.width*ratio),int(image.height*ratio))
-        image.save(filename=newName)
+        self.exec_image = image
+        self.image_name = newName
+        #image.save(filename=newName)
         return image
 
     def resize_with_value(self,image,w_value,h_value,newName):
         image.resize(int(w_value),int(h_value))
-        image.save(filename=newName)
+        #image.save(filename=newName)
+        self.exec_image = image
+        self.image_name = newName
         return image
 
     def resize_width(self,image,w_value,newName):
         image.resize(int(w_value),image.height)
-        image.save(filename=newName)
+        self.exec_image = image
+        self.image_name = newName
+        #image.save(filename=newName)
         return image
     
     def resize_height(self,image,h_value,newName):
         image.resize(image.width,int(h_value))
-        image.save(filename=newName)
+        self.exec_image = image
+        self.image_name = newName
+        #image.save(filename=newName)
         return image
 
 
@@ -106,9 +116,10 @@ if __name__ == "__main__":
     m = resize.get_image_with_url('https://developers.google.com/webmasters/mobile-sites/imgs/mobile-seo/separate-urls.png?hl=tr')
     print resize.get_image_width(m)
     print resize.get_image_height(m)
-    m = resize.resize_with_value(m,100,90,'first.png')
+    m = resize.resize_with_value(m,100,90,'second.png')
     print resize.get_image_width(m)
     print resize.get_image_height(m)
-    m = resize.resize_with_ratio(m,0.5,'first.png')
+    m = resize.resize_with_ratio(m,0.5,'second.png')
     print resize.get_image_width(m)
     print resize.get_image_height(m)
+    resize.execute()
