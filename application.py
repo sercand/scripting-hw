@@ -85,20 +85,20 @@ class Application:
         cmps = []
         with open(path, 'r') as f:
             d = json.load(f)
-            for x in d.cmps:
+            for x in d['cmps']:
                 # load component
-                r = self.load(x.cmp)
+                r = self.load(x['cmp'])
                 # create class instance
                 cc = getattr(r[1], r[2])()
                 # set args back
-                for k, v in x.args.iteritems():
+                for k, v in x['args'].iteritems():
                     cc[k] = v
                 # create entry
-                de = design.DesignEntry(cc, x.cmp)
+                de = design.DesignEntry(cc, x['cmp'])
                 # set saved id
-                de.id = x.id
+                de.id = x['id']
                 # set method name
-                de.method = x.method
+                de.method = x['method']
                 # add to list
                 cmps.append(de)
 
