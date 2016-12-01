@@ -132,6 +132,12 @@ class Application:
                 return de.id
         return None
 
+    def instance(self, id):
+        for x in self.design.cmps:
+            if x.id == id:
+                return x.component
+        raise Exception('component instance not found')
+
     def instances(self):
         """
         instances return the current set of components in the application as a dictionary. The returned
@@ -160,8 +166,6 @@ if __name__ == "__main__":
     print app.avaliable()
     print app.load('resize')
     print app.loaded()
-    a = app.addInstance('resize', 0)
-    print app.addInstance('resize', 1)
     print app.instances()
     app.callMethod(a, 'resize', None)
     app.removeInstance(a)
