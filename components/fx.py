@@ -55,12 +55,15 @@ class Fx():
         """
         pass
 
-    def level(self, image, black, white, gamma):
-        image.level(black, white, gamma=gamma)
+    def set_gamma(self, adj):
+        self.__setitem__('adj', adj)
+
+    def level(self, image, gamma):
+        image.level(0.2, 0.8, gamma=self.__getitem__('adj'))
         return image
 
-    def gamma(self, image, adjustment_value):
-        image.gamma(adjustment_value)
+    def gamma(self, image):
+        image.gamma(self.__getitem__('adj'))
         return image
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import os
 import imp
 import inspect
 import json
+from wand.image import Image
 
 import design
 
@@ -63,19 +64,20 @@ class Application:
         callMethod(’rss1231’,’refresh’,None) will call refresh () of the identified RSS component.        
         """
         cmp = self.design.get_cmp(id)
-        getattr(cmp,methodname)(params)
-        
-        
-        #print cmp
+        getattr(cmp, methodname)(params)
 
+        # print cmp
 
-    def execute(self):
+    def execute(self, path, output):
         """
         This is the application execution mode. It will execute all added component
         instances and generate the collective result. In web project it can be the whole 
         HTML page. In graph based projects it is the graph traversal resulting in the whole application action.        
         """
-        pass
+        theimage = Image(filename=path)
+        for c in self.design.cmps:
+            self.callMethod(c.id, c.method, theimage)
+        theimage.save(filename=output)
 
     def loadDesign(self, path):
         """
@@ -111,7 +113,7 @@ class Application:
         """
         self.design.save_to(path)
 
-    def addInstance(self, componentname, index):
+    def addInstance(self, componentname, index, method):
         """
         addInstance will create an instance from a loaded component and place it on given coordinates. The 
         coordinates can be on a grid, on a column or row layout. x and y parameters can be modified or new 
@@ -124,6 +126,7 @@ class Application:
                 cc = getattr(x[1], x[2])()
                 # create entry
                 de = design.DesignEntry(cc, componentname)
+                de.method = method
                 de.index = index
                 self.design.push(de)
                 return de.id
@@ -160,6 +163,6 @@ if __name__ == "__main__":
     a = app.addInstance('resize', 0)
     print app.addInstance('resize', 1)
     print app.instances()
-    app.callMethod(a,'resize',None)
+    app.callMethod(a, 'resize', None)
     app.removeInstance(a)
     print app.instances()
