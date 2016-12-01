@@ -46,18 +46,6 @@ class Fx():
 
         return dic
 
-    def execute(self):
-        """
-        execute method will result in execution of component body. Result depends on the component type. 
-        A web application can generate HTML content where a graph based component gets all of inputs and 
-        generate outputs. execute is the basic behaviour of the component on execution time. The application 
-        is expected to call execute method of all added components to execute a design.
-        """
-        pass
-
-    def set_gamma(self, adj):
-        self.__setitem__('adj', adj)
-
     def level(self, image, gamma):
         image.level(0.2, 0.8, gamma=self.__getitem__('adj'))
         return image

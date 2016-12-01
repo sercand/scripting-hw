@@ -167,6 +167,3 @@ if __name__ == "__main__":
     print app.load('resize')
     print app.loaded()
     print app.instances()
-    app.callMethod(a, 'resize', None)
-    app.removeInstance(a)
-    print app.instances()
