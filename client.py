@@ -73,7 +73,6 @@ class Client(object):
                 break
 
         data = self.conn.recv(10240)
-        self.lock.release()
 
         if data:
             inj = data.find('}') + 1
@@ -94,6 +93,35 @@ class Client(object):
                 else:
                     iidata = self.conn.recv(10240)
             image_binary = base64.b64decode(imgdata)
+            self.lock.release()            
+            return Image(blob=image_binary)
+        else:
+            raise Exception('no result')
+
+    def __send_url_get_image__(self, action, args):
+        self.lock.acquire()
+        self.conn.send(json.dumps({"action": action, "args": args}))
+        data = self.conn.recv(10240)
+        if data:
+            inj = data.find('}') + 1
+            jdata = data[:inj]
+            imgdata = data[inj:]
+            resp = json.loads(jdata)
+            if resp.has_key('error'):
+                raise Exception('server responded with: ' + resp['error'])
+            tot = resp['total']
+            iidata = self.conn.recv(10240)
+            while iidata:
+                imgdata += iidata
+                if len(imgdata) >= tot:
+                    break
+                remain = tot - len(imgdata)
+                if remain < 10240:
+                    iidata = self.conn.recv(remain)
+                else:
+                    iidata = self.conn.recv(10240)
+            image_binary = base64.b64decode(imgdata)
+            self.lock.release()
             return Image(blob=image_binary)
         else:
             raise Exception('no result')
@@ -135,7 +163,7 @@ class Client(object):
         return self.__send_image__('image', strr)
 
     def getImageByUrl(self, url):
-        return self.__send__('image_by_url', {"url": url})
+        return self.__send_url_get_image__('image_by_url', {"url": url})
 
 
 if __name__ == "__main__":
@@ -154,7 +182,7 @@ if __name__ == "__main__":
     logger.info("client.loaded() returns: %s", res)
     res = client.addInstance('fx', 1, 'gamma', {'adj': 0.5})
     res = client.addInstance('resize', 2, 'resize_with_ratio', {'ratio': 0.25})
-    img = client.getImage('/Users/sercand/Pictures/9955787.jpg')
+    img = client.getImageByUrl('/Users/sercand/Pictures/9955787.jpg')
     display(img)
 #    img.save('hello.jpg')
     client.close()

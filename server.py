@@ -116,11 +116,25 @@ class ClientAgent(Thread):
                 self.app.callMethod(c.id, c.method, img)
             output = BytesIO()
             img.save(file=output)
-            imageStr = base64.b64encode(output.getvalue()) #output.read().encode('base64')
+            # output.read().encode('base64')
+            imageStr = base64.b64encode(output.getvalue())
             total = len(imageStr)
             self.conn.send(json.dumps({"total": total}))
             self.conn.sendall(imageStr)
 
+        self.lock.release()
+
+    def __download_send_image__(self, url):
+        self.lock.acquire()
+        with Image(filename=url) as img:
+            for c in self.app.design.cmps:
+                self.app.callMethod(c.id, c.method, img)
+            output = BytesIO()
+            img.save(file=output)
+            imageStr = base64.b64encode(output.getvalue())
+            total = len(imageStr)
+            self.conn.send(json.dumps({"total": total}))
+            self.conn.sendall(imageStr)
         self.lock.release()
 
     def run(self):
@@ -138,6 +152,11 @@ class ClientAgent(Thread):
             elif req.action == "image":
                 self.lock.release()
                 self.__upload_image__(inp)
+                inp = self.conn.recv(10240)
+                continue
+            elif req.action == "image_by_url":
+                self.lock.release()
+                self.__download_send_image__(req.args['url'])
                 inp = self.conn.recv(10240)
                 continue
             func = getattr(self, req.action, None)
