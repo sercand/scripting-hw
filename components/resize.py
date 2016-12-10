@@ -41,31 +41,27 @@ class Resize():
         can return [(’getpage’, ’Changes␣current␣page␣to␣given␣page␣no’)] so that user can go to arbitrary
         pages on reader. getpage() should be implemented on the RSS reader componentclass.
         """
-        dic = [('resize_width', 'This method resizes the image width and it takes 3 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the width you want to resize the image. As the last parameter provide the image name you want to save after image resize operation')]
-        dic = dic + [('resize_height', 'This method resizes the image height and it takes 3 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the height you want to resize the image. As the last parameter provide the image name you want to save image after resize operation')]
-        dic = dic + [('resize_with_value', 'This method resizes the image width and height and it takes 4 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the width you want to resize the image. As the third parameter provide the height you want to resize the image. As the last parameter provide the image name you want to save image after resize operation')]
-        dic = dic + [('resize_with_ratio', 'This method resizes the image width and height and it takes 4 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide a ratio as float to multiply with the width. As the third parameter provide a ratio as float to multiply with the height. As the last parameter provide the image name you want to save image after resize operation')]
+        dic = [
+            ('resize_width', 'This method resizes the image width and it takes 3 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the width you want to resize the image. As the last parameter provide the image name you want to save after image resize operation'),
+            ('resize_height', 'This method resizes the image height and it takes 3 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the height you want to resize the image. As the last parameter provide the image name you want to save image after resize operation'),
+            ('resize_with_value', 'This method resizes the image width and height and it takes 4 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide the width you want to resize the image. As the third parameter provide the height you want to resize the image. As the last parameter provide the image name you want to save image after resize operation'),
+            ('resize_with_ratio', 'This method resizes the image width and height and it takes 4 parameters. As a first parameter provide the image you get with the path or url. As the second parameter provide a ratio as float to multiply with the width. As the third parameter provide a ratio as float to multiply with the height. As the last parameter provide the image name you want to save image after resize operation')]
 
         return dic
 
     def resize_with_ratio(self, image):
         ratio = self.__getitem__('ratio')
         image.resize(int(image.width * ratio), int(image.height * ratio))
-        self.exec_image = image
         return image
 
     def resize_with_value(self, image):
-        image.resize(self.__getitem__('width'), self.__getitem__('height'))
+        image.resize(self['width'], self['height'])
         return image
 
     def resize_width(self, image):
-        image.resize(self.__getitem__('width'), image.height)
+        image.resize(self['width'], image.height)
         return image
 
     def resize_height(self, image):
-        image.resize(image.width, self.__getitem__('height'))
+        image.resize(image.width, self['height'])
         return image
-
-
-if __name__ == "__main__":
-    resize = Resize()

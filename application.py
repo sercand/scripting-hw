@@ -141,8 +141,8 @@ class Application:
     def instances(self):
         """
         instances return the current set of components in the application as a dictionary. The returned
-         dictionary will have the component instance id as the key and component name and its position 
-         in a tuple as the value.
+        dictionary will have the component instance id as the key and component name and its position 
+        in a tuple as the value.
         METU Department of Computer Engineering
         {’rss1231’:(’rss’,0,1), ’rss1212’:(’rss’,1,1), ’mb121’:(’mblog’,2,1)}.
         """

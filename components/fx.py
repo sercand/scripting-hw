@@ -22,7 +22,7 @@ class Fx():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return []
+        return [('adj', 'int')]
 
     def __setitem__(self, key, item):
         #        if not (key == "width" or key == "height"):
@@ -46,13 +46,10 @@ class Fx():
 
         return dic
 
-    def level(self, image, gamma):
+    def level(self, image):
         image.level(0.2, 0.8, gamma=self.__getitem__('adj'))
         return image
 
     def gamma(self, image):
         image.gamma(self.__getitem__('adj'))
         return image
-
-if __name__ == "__main__":
-    pass
