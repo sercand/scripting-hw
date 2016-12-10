@@ -32,6 +32,10 @@ class ClientAgent(Thread):
             req = request.Request(req=inp)
             logger.debug('client send "%s" action and params: %s',
                          req.action, req.args)
+            if req.action == "run":
+                self.conn.send(json.dumps({"error": "invalid action"}))
+                inp = self.conn.recv(10240)
+                continue
             func = getattr(self, req.action, None)
             if callable(func):
                 res = func(req.args)
