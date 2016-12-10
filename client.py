@@ -22,7 +22,7 @@ class Client(object):
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((self.host, self.port))
         self.conn = conn
-        logger.debug('connected to server')        
+        logger.debug('connected to server')
 
     def close(self):
         logger.debug('closing connection with server')
@@ -36,15 +36,19 @@ class Client(object):
         self.conn.send(str(req))
         data = self.conn.recv(10240)
         if data:
-            return json.loads(data)
+            resp = json.loads(data)
+            if not resp.has_key('error'):
+                return resp
+            else:
+                raise Exception('server responded with: ' + resp['error'])
         else:
-            # TODO raise Error
-            return None
+            raise Exception('no result')
 
     def available(self):
         return self.__send__("available", {})
+
     def loaded(self):
-        return self.__send__("loaded", {})
+        return self.__send__("loadedss", {})
 
 if __name__ == "__main__":
     logger = logging.getLogger("client")

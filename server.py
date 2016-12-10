@@ -31,8 +31,11 @@ class ClientAgent(Thread):
             if req.action == "available":
                 lst = self.app.avaliable()
                 self.conn.send(json.dumps({"components": lst}))
+            elif req.action == "loaded":
+                l = self.app.loaded()
+                self.conn.send(json.dumps({"components": l}))
             else:
-                self.conn.send(str(req.args))
+                self.conn.send(json.dumps({"error": "unknown action"}))
             inp = self.conn.recv(10240)
         logger.debug('client %s is terminating', self.claddr)
         self.conn.close()
