@@ -10,6 +10,8 @@ def load(name):
             if str(obj).startswith(name):
                 className = str(obj).split('.')[1]
     class_ = getattr(themodule, className)
+    print themodule, className
+    print class_
     return class_()
 
 

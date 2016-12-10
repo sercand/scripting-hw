@@ -91,4 +91,13 @@ if __name__ == "__main__":
     logger.info("client.available() returns: %s", res)
     res = client.loaded()
     logger.info("client.loaded() returns: %s", res)
+    res = client.load('fx')
+    logger.info("client.load() returns: %s", res)
+    res = client.loaded()
+    logger.info("client.loaded() returns: %s", res)
+    res = client.addInstance('fx',3,'gamma',{'adj': 0.5})
+    ins_id = res['id']
+    logger.info("client.addInstance() returns: %s", res)
+    res = client.removeInstance(ins_id)
+    logger.info("client.removeInstance() returns: %s", res)
     client.close()

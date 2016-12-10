@@ -6,6 +6,9 @@ import socket
 from application import Application
 import request
 import json
+import os
+import imp
+import inspect
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -25,6 +28,60 @@ class ClientAgent(Thread):
     def available(self, args):
         lst = self.app.avaliable()
         return json.dumps({"components": lst})
+    def loaded(self, args):
+        lst = self.app.loaded()
+        return json.dumps({"components": lst})
+    def load(self,args):
+        self.app.load(args["compid"])
+        lst = self.app.loaded()
+        return json.dumps({"components": lst})
+    def add_instance(self,args):
+        _id = self.app.addInstance(args["cmp"],args["index"],args["method"])
+        i = self.app.instance(_id)
+        for a in args["args"]:
+            i[a] = args["args"][a]
+        print i.__dict__
+        return json.dumps({"id": _id})
+
+    def remove_instance(self,args):
+        self.app.removeInstance(args["component_id"])
+        return json.dumps({"components": ""})
+
+    def get_design(self,args):
+        return json.dumps(self.app.design.json())
+    
+    def set_design(self,args):
+        i = self.app.loadDesignObj(args)
+        return json.dumps(self.app.design.json())
+    
+    def component_methods(self,args):
+        compid = args["name"]
+        themodule = imp.load_source(compid, "components/" + compid + ".py")
+        className = None
+        for xn, obj in inspect.getmembers(themodule):
+            if inspect.isclass(obj):
+                if str(obj).startswith(compid):
+                    className = str(obj).split('.')[1]
+        class_ = getattr(themodule, className)
+        v = class_().methods()
+
+        ret_dict = {}
+        for i in v:
+            ret_dict[i[0]] = i[1]
+        return json.dumps(ret_dict)
+
+    def component_attributes(self,args):
+        compid = args["name"]
+        themodule = imp.load_source(compid, "components/" + compid + ".py")
+        className = None
+        for xn, obj in inspect.getmembers(themodule):
+            if inspect.isclass(obj):
+                if str(obj).startswith(compid):
+                    className = str(obj).split('.')[1]
+        class_ = getattr(themodule, className)
+        v = class_().attributes()
+        
+        
 
     def run(self):
         inp = self.conn.recv(10240)

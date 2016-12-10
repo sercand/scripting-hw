@@ -84,27 +84,29 @@ class Application:
         A design can be saved and loaded from a file. The file format depends on you. Loading a design 
         should load() all required components and create all instances with their configured attributes.
         """
-        cmps = []
         with open(path, 'r') as f:
             d = json.load(f)
-            for x in d['cmps']:
-                # load component
-                r = self.load(x['cmp'])
-                # create class instance
-                cc = getattr(r[1], r[2])()
-                # set args back
-                for k, v in x['args'].iteritems():
-                    cc[k] = v
-                # create entry
-                de = design.DesignEntry(cc, x['cmp'])
-                # set saved id
-                de.id = x['id']
-                # set method name
-                de.method = x['method']
-                # add to list
-                cmps.append(de)
-
-        self.design.cmps = cmps
+            self.loadDesignObj(d)
+    
+    def loadDesignObj(self,obj):
+        cmps = []        
+        for x in obj['cmps']:
+            # load component
+            r = self.load(x['cmp'])
+            # create class instance
+            cc = getattr(r[1], r[2])()
+            # set args back
+            for k, v in x['args'].iteritems():
+                cc[k] = v
+            # create entry
+            de = design.DesignEntry(cc, x['cmp'])
+            # set saved id
+            de.id = x['id']
+            # set method name
+            de.method = x['method']
+            # add to list
+            cmps.append(de)
+        self.design.cmps = cmps        
 
     def saveDesign(self, path):
         """
