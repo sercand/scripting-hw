@@ -7,6 +7,9 @@ import request
 import json
 import logging
 from threading import Thread, Lock, Condition
+import base64
+from wand.image import Image
+from wand.display import display
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,7 +36,6 @@ class Client(object):
 
     def __send__(self, action, args):
         self.lock.acquire()
-        print "__send__", action
         if self.conn is None:
             raise Exception('before executing run connect')
         req = request.Request(action=action, args=args)
@@ -42,7 +44,6 @@ class Client(object):
         if data:
             resp = json.loads(data)
             if not resp.has_key('error'):
-                print "__receive__", action
                 self.lock.release()
                 return resp
             else:
@@ -53,8 +54,6 @@ class Client(object):
     def __send_image__(self, action, image_data):
         self.lock.acquire()
         total = len(image_data)
-        print total, "bytes image data"
-
         self.conn.send(json.dumps({"action": action, "args": {
             "total": total}}))
 
@@ -63,7 +62,6 @@ class Client(object):
 
         while True:
             last = sent + step
-            print "send", sent, "to", last
             breakonthis = False
             if last >= total:
                 last = total
@@ -73,7 +71,32 @@ class Client(object):
             sent = last
             if breakonthis:
                 break
+
+        data = self.conn.recv(10240)
         self.lock.release()
+
+        if data:
+            inj = data.find('}') + 1
+            jdata = data[:inj]
+            imgdata = data[inj:]
+            resp = json.loads(jdata)
+            if resp.has_key('error'):
+                raise Exception('server responded with: ' + resp['error'])
+            tot = resp['total']
+            iidata = self.conn.recv(10240)
+            while iidata:
+                imgdata += iidata
+                if len(imgdata) >= tot:
+                    break
+                remain = tot - len(imgdata)
+                if remain < 10240:
+                    iidata = self.conn.recv(remain)
+                else:
+                    iidata = self.conn.recv(10240)
+            image_binary = base64.b64decode(imgdata)
+            return Image(blob=image_binary)
+        else:
+            raise Exception('no result')
 
     def available(self):
         return self.__send__("available", {})
@@ -118,19 +141,20 @@ class Client(object):
 if __name__ == "__main__":
     logger = logging.getLogger("client")
 
-    client = Client()
+    client = Client(server_port=4000)
     client.connect()
     res = client.available()
     logger.info("client.available() returns: %s", res)
     res = client.loaded()
     logger.info("client.loaded() returns: %s", res)
     res = client.load('fx')
+    res = client.load('resize')
     logger.info("client.load() returns: %s", res)
     res = client.loaded()
     logger.info("client.loaded() returns: %s", res)
-    res = client.addInstance('fx',3,'gamma',{'adj': 0.5})
-    ins_id = res['id']
-    logger.info("client.addInstance() returns: %s", res)
-    res = client.removeInstance(ins_id)
-    logger.info("client.removeInstance() returns: %s", res)
+    res = client.addInstance('fx', 1, 'gamma', {'adj': 0.5})
+    res = client.addInstance('resize', 2, 'resize_with_ratio', {'ratio': 0.25})
+    img = client.getImage('/Users/sercand/Pictures/9955787.jpg')
+    display(img)
+#    img.save('hello.jpg')
     client.close()

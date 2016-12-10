@@ -11,6 +11,8 @@ import imp
 import inspect
 from wand.image import Image
 import base64
+import StringIO
+from io import BytesIO
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -110,23 +112,21 @@ class ClientAgent(Thread):
         image_binary = base64.b64decode(imagedata)
 
         with Image(blob=image_binary) as img:
-            print('width =', img.width)
-            print('height =', img.height)
-
             for c in self.app.design.cmps:
                 self.app.callMethod(c.id, c.method, img)
-            img.save(filename='deneme.jpg')
+            output = BytesIO()
+            img.save(file=output)
+            imageStr = base64.b64encode(output.getvalue()) #output.read().encode('base64')
+            total = len(imageStr)
+            self.conn.send(json.dumps({"total": total}))
+            self.conn.sendall(imageStr)
 
-        self.conn.send('{}')
         self.lock.release()
-
-        print "conn finished and got", len(imagedata), " bytes data, and promised to get", total, "bytes"
 
     def run(self):
         inp = self.conn.recv(10240)
         while inp:
             self.lock.acquire()
-            print("receive %d data,d %s" % (len(inp), inp))
             req = request.Request(req=inp)
             logger.debug('client send "%s" action and params: %s',
                          req.action, req.args)
