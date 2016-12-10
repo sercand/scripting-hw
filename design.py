@@ -18,6 +18,12 @@ class DesignEntry:
         self.index = -1
         self.method = ""
 
+    def json(self):
+        return {"id": self.id,
+                "cmp": self.cmp_name,
+                "method": self.method,
+                "args": self.component.__dict__}
+
 
 class Design:
 
@@ -35,6 +41,10 @@ class Design:
         return len(self.cmps)
 
     def save_to(self, path):
+        with open(path, 'w') as f:
+            json.dump(self.json(), f)
+
+    def json(self):
         cmps = []
         for x in self.cmps:
             cmps.append({"id": x.id,
@@ -42,8 +52,7 @@ class Design:
                          "method": x.method,
                          "args": x.component.__dict__})
 
-        with open(path, 'w') as f:
-            json.dump({"cmps": cmps}, f)
+        return {"cmps": cmps}
 
     def get_cmp(self, id):
         for x in self.cmps:
