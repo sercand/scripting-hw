@@ -196,6 +196,6 @@ class Server(object):
             a.start()
 
 if __name__ == "__main__":
-    srv = Server(port=4000)
+    srv = Server(port=4001)
     logger = logging.getLogger("server")
     srv.run()

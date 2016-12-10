@@ -27,7 +27,7 @@ class Resize():
     def __setitem__(self, key, item):
         if not (key == "width" or key == "height" or key == "ratio"):
             raise Exception(key + ' key is invalid')
-        if not isinstance(item, int):
+        if not (isinstance(item, int) or isinstance(item, float)):
             raise Exception(key + ' is invalid type')
         self.__dict__[key] = item
 

@@ -30,8 +30,6 @@ class Rotate():
             raise Exception(key + ' key is invalid')
         if key == "degree" and not isinstance(item, int):
             raise Exception(key + ' is invalid type')
-        if key == "background" and not isinstance(item, str):
-            raise Exception(key + ' is invalid type')
         self.__dict__[key] = item
 
     def __getitem__(self, key):
@@ -44,15 +42,16 @@ class Rotate():
         can return [(’getpage’, ’Changes␣current␣page␣to␣given␣page␣no’)] so that user can go to arbitrary
         pages on reader. getpage() should be implemented on the RSS reader componentclass.
         """
-        dic = [('rotate', 'This method takes 1 parameter. User will provide a degree to rotate the image with. The background color will be transparent by default.Rotation value must be integer'), ('rotate_with_background', 'This method takes 2 parameters. First parameter will be the degree to rotate the image with and the second parameter will be the background color. Rotation value must be integer and the background color is a string that specifies the RGB value such as:(#f00)')]
-        
+        dic = [('rotate', 'This method takes 1 parameter. User will provide a degree to rotate the image with. The background color will be transparent by default.Rotation value must be integer'), ('rotate_with_background',
+                                                                                                                                                                                                      'This method takes 2 parameters. First parameter will be the degree to rotate the image with and the second parameter will be the background color. Rotation value must be integer and the background color is a string that specifies the RGB value such as:(#f00)')]
+
         None
 
     def rotate(self, image):
         degree = self.__getitem__('degree')
         image.rotate(degree)
         return image
-    
+
     def rotate_with_background(self, image):
         degree = self.__getitem__('degree')
         background = self.__getitem__('background')

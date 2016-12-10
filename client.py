@@ -93,7 +93,7 @@ class Client(object):
                 else:
                     iidata = self.conn.recv(10240)
             image_binary = base64.b64decode(imgdata)
-            self.lock.release()            
+            self.lock.release()
             return Image(blob=image_binary)
         else:
             raise Exception('no result')
@@ -169,7 +169,7 @@ class Client(object):
 if __name__ == "__main__":
     logger = logging.getLogger("client")
 
-    client = Client(server_port=4000)
+    client = Client(server_port=4001)
     client.connect()
     res = client.available()
     logger.info("client.available() returns: %s", res)
@@ -177,11 +177,15 @@ if __name__ == "__main__":
     logger.info("client.loaded() returns: %s", res)
     res = client.load('fx')
     res = client.load('resize')
+    res = client.load('rotate')
     logger.info("client.load() returns: %s", res)
     res = client.loaded()
     logger.info("client.loaded() returns: %s", res)
     res = client.addInstance('fx', 1, 'gamma', {'adj': 0.5})
     res = client.addInstance('resize', 2, 'resize_with_ratio', {'ratio': 0.25})
+    res = client.addInstance('rotate', 3, 'rotate_with_background', {
+                             'degree': 30, 'background': "green"})
+
     img = client.getImageByUrl('/Users/sercand/Pictures/9955787.jpg')
     display(img)
 #    img.save('hello.jpg')
