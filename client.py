@@ -7,6 +7,9 @@ import request
 import json
 import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class Client(object):
 
@@ -19,8 +22,10 @@ class Client(object):
         conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         conn.connect((self.host, self.port))
         self.conn = conn
+        logger.debug('connected to server')        
 
     def close(self):
+        logger.debug('closing connection with server')
         self.conn.close()
         self.conn = None
 
@@ -45,5 +50,5 @@ if __name__ == "__main__":
     logger = logging.getLogger("client")
     client.connect()
     res = client.available()
-    print "client.available() returns", res
+    logger.info("client.available() returns: %s", res)
     client.close()
