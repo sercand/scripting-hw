@@ -43,12 +43,16 @@ class Client(object):
 
     def available(self):
         return self.__send__("available", {})
-
+    def loaded(self):
+        return self.__send__("loaded", {})
 
 if __name__ == "__main__":
-    client = Client()
     logger = logging.getLogger("client")
+
+    client = Client()
     client.connect()
     res = client.available()
     logger.info("client.available() returns: %s", res)
+    res = client.loaded()
+    logger.info("client.loaded() returns: %s", res)
     client.close()
