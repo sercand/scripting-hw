@@ -9,6 +9,8 @@ import json
 import os
 import imp
 import inspect
+from wand.image import Image
+import base64
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -23,38 +25,42 @@ class ClientAgent(Thread):
         self.conn = conn
         self.claddr = addr
         self.app = app
+        self.lock = Lock()
         Thread.__init__(self)
 
     def available(self, args):
         lst = self.app.avaliable()
         return json.dumps({"components": lst})
+
     def loaded(self, args):
         lst = self.app.loaded()
         return json.dumps({"components": lst})
-    def load(self,args):
+
+    def load(self, args):
         self.app.load(args["compid"])
         lst = self.app.loaded()
         return json.dumps({"components": lst})
-    def add_instance(self,args):
-        _id = self.app.addInstance(args["cmp"],args["index"],args["method"])
+
+    def add_instance(self, args):
+        _id = self.app.addInstance(args["cmp"], args["index"], args["method"])
         i = self.app.instance(_id)
         for a in args["args"]:
             i[a] = args["args"][a]
         print i.__dict__
         return json.dumps({"id": _id})
 
-    def remove_instance(self,args):
+    def remove_instance(self, args):
         self.app.removeInstance(args["component_id"])
         return json.dumps({"components": ""})
 
-    def get_design(self,args):
+    def get_design(self, args):
         return json.dumps(self.app.design.json())
-    
-    def set_design(self,args):
+
+    def set_design(self, args):
         i = self.app.loadDesignObj(args)
         return json.dumps(self.app.design.json())
-    
-    def component_methods(self,args):
+
+    def component_methods(self, args):
         compid = args["name"]
         themodule = imp.load_source(compid, "components/" + compid + ".py")
         className = None
@@ -70,7 +76,7 @@ class ClientAgent(Thread):
             ret_dict[i[0]] = i[1]
         return json.dumps(ret_dict)
 
-    def component_attributes(self,args):
+    def component_attributes(self, args):
         compid = args["name"]
         themodule = imp.load_source(compid, "components/" + compid + ".py")
         className = None
@@ -80,17 +86,58 @@ class ClientAgent(Thread):
                     className = str(obj).split('.')[1]
         class_ = getattr(themodule, className)
         v = class_().attributes()
-        
-        
+
+    def __upload_image__(self, data):
+        self.lock.acquire()
+        req = request.Request(req=data)
+        total = req.args['total']
+        imagedata = ""
+
+        inp = self.conn.recv(10240)
+
+        while inp:
+            imagedata += inp
+            if len(imagedata) >= total:
+                break
+            else:
+                got = len(imagedata)
+                remain = total - got
+                if remain < 10240:
+                    inp = self.conn.recv(remain)
+                else:
+                    inp = self.conn.recv(10240)
+
+        image_binary = base64.b64decode(imagedata)
+
+        with Image(blob=image_binary) as img:
+            print('width =', img.width)
+            print('height =', img.height)
+
+            for c in self.app.design.cmps:
+                self.app.callMethod(c.id, c.method, img)
+            img.save(filename='deneme.jpg')
+
+        self.conn.send('{}')
+        self.lock.release()
+
+        print "conn finished and got", len(imagedata), " bytes data, and promised to get", total, "bytes"
 
     def run(self):
         inp = self.conn.recv(10240)
         while inp:
+            self.lock.acquire()
+            print("receive %d data,d %s" % (len(inp), inp))
             req = request.Request(req=inp)
             logger.debug('client send "%s" action and params: %s',
                          req.action, req.args)
             if req.action == "run":
                 self.conn.send(json.dumps({"error": "invalid action"}))
+                self.lock.release()
+                inp = self.conn.recv(10240)
+                continue
+            elif req.action == "image":
+                self.lock.release()
+                self.__upload_image__(inp)
                 inp = self.conn.recv(10240)
                 continue
             func = getattr(self, req.action, None)
@@ -103,6 +150,7 @@ class ClientAgent(Thread):
                         {"error": "internal execution error"}))
             else:
                 self.conn.send(json.dumps({"error": "unknown action"}))
+            self.lock.release()
             inp = self.conn.recv(10240)
         logger.debug('client %s is terminating', self.claddr)
         self.conn.close()
@@ -129,6 +177,6 @@ class Server(object):
             a.start()
 
 if __name__ == "__main__":
-    srv = Server()
+    srv = Server(port=4000)
     logger = logging.getLogger("server")
     srv.run()
