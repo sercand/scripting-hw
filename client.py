@@ -48,7 +48,7 @@ class Client(object):
         return self.__send__("available", {})
 
     def loaded(self):
-        return self.__send__("loadedss", {})
+        return self.__send__("loaded", {})
 
 if __name__ == "__main__":
     logger = logging.getLogger("client")

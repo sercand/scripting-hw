@@ -22,18 +22,24 @@ class ClientAgent(Thread):
         self.app = app
         Thread.__init__(self)
 
+    def available(self, args):
+        lst = self.app.avaliable()
+        return json.dumps({"components": lst})
+
     def run(self):
         inp = self.conn.recv(10240)
         while inp:
             req = request.Request(req=inp)
             logger.debug('client send "%s" action and params: %s',
                          req.action, req.args)
-            if req.action == "available":
-                lst = self.app.avaliable()
-                self.conn.send(json.dumps({"components": lst}))
-            elif req.action == "loaded":
-                l = self.app.loaded()
-                self.conn.send(json.dumps({"components": l}))
+            func = getattr(self, req.action, None)
+            if callable(func):
+                res = func(req.args)
+                if isinstance(res, str):
+                    self.conn.send(res)
+                else:
+                    self.conn.send(json.dumps(
+                        {"error": "internal execution error"}))
             else:
                 self.conn.send(json.dumps({"error": "unknown action"}))
             inp = self.conn.recv(10240)
