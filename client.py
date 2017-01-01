@@ -10,6 +10,7 @@ from threading import Thread, Lock, Condition
 import base64
 from wand.image import Image
 from wand.display import display
+import pprint
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -178,15 +179,22 @@ if __name__ == "__main__":
     res = client.load('fx')
     res = client.load('resize')
     res = client.load('rotate')
+    res = client.load('crop')
+    res = client.load('threshold')
+    res = client.load('flip_flop')
     logger.info("client.load() returns: %s", res)
     res = client.loaded()
     logger.info("client.loaded() returns: %s", res)
-    res = client.addInstance('fx', 1, 'gamma', {'adj': 0.5})
+    """res = client.addInstance('fx', 1, 'gamma', {'adj': 0.5})
     res = client.addInstance('resize', 2, 'resize_with_ratio', {'ratio': 0.25})
     res = client.addInstance('rotate', 3, 'rotate_with_background', {
                              'degree': 30, 'background': "green"})
-
-    img = client.getImageByUrl('/Users/sercand/Pictures/9955787.jpg')
+    res = client.addInstance('crop', 4, 'crop_on_center', {'width': 400, 'height': 300, 'center': 'True'})
+    res = client.addInstance('flip_flop', 5, 'flip', {})"""
+    res = client.addInstance('threshold', 6, 'threshold', {'factor': 0.9, 'channel': 'gray'})
+    #res = client.componentMethods('flip_flop')
+    pprint.pprint(res)
+    img = client.getImage('C:\\Users\\Selim\\Desktop\\photo.jpg')
     display(img)
-#    img.save('hello.jpg')
+    img.save(filename= 'hello2.jpg')
     client.close()
