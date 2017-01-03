@@ -8,6 +8,8 @@ import string
 import tempfile
 from django.db import models
 
+
+
 class Document(models.Model):
     docfile = models.FileField(upload_to='documents/%Y/%m/%d')
 
@@ -15,7 +17,8 @@ class UploadFileForm(forms.Form):
     image = forms.FileField()
 
 def handle_uploaded_file(f):
-    tmp = tempfile.NamedTemporaryFile()
+    _,tmp = tempfile.mkstemp()
+    print tmp
     with open( tmp, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
@@ -24,9 +27,12 @@ def imageButton(request):
     print "HERE I AM"
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
-        print form.errors
+        print request.POST, request.FILES
+        print form
         if form.is_valid():
-            print "aaaaaaa"
-            newdoc = Document(docfile=request.FILES['image'])
-            newdoc.save()
+            print "IS VALID"
+            handle_uploaded_file(request.FILES['image'])
+            return HttpResponseRedirect('/')
+    else:
+        form = UploadFileForm()
     return HttpResponseRedirect('/')
