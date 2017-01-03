@@ -28,7 +28,7 @@
                 <form action="updateCmp" method="post">
                     <input value="{{component.id}}" type="text" name="cmpid" style="display: none;">                    
                     <div class="input-field">
-                        <select name="cmptype">
+                        <select name="cmptype" onchange="this.form.submit()">
                             <option value="" disabled {% if component.type == "" %}selected{% endif %}>Choose your option</option>
                             {% for type in component_types %}                                              
                             <option value="{{ type.value}}" {% if type.value == component.type %}selected{% endif %}>{{ type.name}}</option>
@@ -36,8 +36,8 @@
                         </select>
                         <label>Component Type</label>
                     </div>
-                    <div class="input-field">
-                        <select name="cmpmethod">
+                    <div class="input-field" >
+                        <select name="cmpmethod" onchange="this.form.submit()">
                             <option value="" disabled {% if component.selected_method == "" %}selected{% endif %}>Choose your option</option>
                             {% for method in component.methods %}                            
                             <option value="{{ method}}" {% if method == component.selected_method %}selected{% endif %}>{{ method }}</option>

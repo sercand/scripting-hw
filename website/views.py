@@ -85,40 +85,43 @@ def updateCmp(request):
     if request.method == 'POST':
         print request.POST
         cmpid = request.POST['cmpid']
-        cmptype = request.POST['cmptype']
-        if 'update' in request.POST:
+
+        if 'delete' in request.POST:
+            app.removeInstance(cmpid)
+        else:
             try:
+                cmptype = request.POST['cmptype']
                 comp = app.design.get_entry(cmpid)
                 if not cmptype == comp.cmp_name:
+                    i = comp.index
                     app.removeInstance(cmpid)
-                    ncmpid = app.addInstance(cmptype, comp.index, '')
+                    print "old index", i
+                    ncmpid = app.addInstance(cmptype, i, '')
                     comp = app.design.get_entry(ncmpid)
                     comp.id = cmpid
                 if 'cmpmethod' in request.POST:
                     cmpmethod = request.POST['cmpmethod']
-                    if not cmpmethod == comp.method:
-                        mlist = map(lambda x: x[0], comp.component.methods())
-                        if cmpmethod in mlist:
+                    mlist = map(lambda x: x[0], comp.component.methods())
+                    if cmpmethod in mlist:
+                        if not cmpmethod == comp.method:
                             comp.method = cmpmethod
-                        else:
-                            comp.method = ''
+                    else:
+                        comp.method = ''
                 atts = comp.component.attributes()
                 for f in request.POST:
-                    if not f in blacklist:
-                        for a in atts:
-                            if a[0] == f:
-                                if a[1] == 'int':
-                                    comp.component[f] = int(request.POST[f])
-                                elif a[1] == 'float':
-                                    comp.component[f] = float(request.POST[f])
-                                else:
-                                    comp.component[f] = request.POST[f]
-                                break
+                    if f in blacklist:
+                        continue
+                    for a in atts:
+                        if a[0] == f:
+                            if a[1] == 'int':
+                                comp.component[f] = int(request.POST[f])
+                            elif a[1] == 'float':
+                                comp.component[f] = float(request.POST[f])
+                            else:
+                                comp.component[f] = request.POST[f]
+                            break
             except:
                 print "no", cmpid
-        elif 'delete' in request.POST:
-            app.removeInstance(cmpid)
-
     response = HttpResponseRedirect('/')
     response.set_cookie(COOKIE_DESIGN, json.dumps(app.design.json()))
     return response

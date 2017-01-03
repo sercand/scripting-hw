@@ -104,6 +104,7 @@ class Application:
             de.id = x['id']
             # set method name
             de.method = x['method']
+            de.index = len(cmps)
             # add to list
             cmps.append(de)
         self.design.cmps = cmps

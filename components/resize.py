@@ -22,7 +22,7 @@ class Resize():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return [('width', 'int', ['resize_width', 'resize_with_value']), ('height', 'int', ['resize_height', 'resize_with_value']), ('ratio', 'int', ['resize_with_ratio'])]
+        return [('width', 'int', ['resize_width', 'resize_with_value']), ('height', 'int', ['resize_height', 'resize_with_value']), ('ratio', 'float', ['resize_with_ratio'],{'step':0.01,'min':0.1,'max':2})]
 
     def __setitem__(self, key, item):
         if not (key == "width" or key == "height" or key == "ratio"):
