@@ -22,52 +22,48 @@
     </nav>
 
     <div class="container">
-        <!-- for component of components -->
+        {% for component in components %}
         <div class="card">
             <div class="card-content">
                 <form action="updateCmp" method="post">
+                    <input value="{{component.id}}" type="text" name="cmpid" style="display: none;">                    
                     <div class="input-field">
                         <select name="cmptype">
-                            <option value="" disabled selected>Choose your option</option>
-                            <!-- for componenttype of componentTypes -->                            
-                            <option value="1">Fx</option>
-                            <option value="2">Resize</option>
-                            <option value="3">Rotate</option>
-                            <!-- endfor -->
+                            <option value="" disabled {% if component.type == "" %}selected{% endif %}>Choose your option</option>
+                            {% for type in component_types %}                                              
+                            <option value="{{ type.value}}" {% if type.value == component.type %}selected{% endif %}>{{ type.name}}</option>
+                            {% endfor %}
                         </select>
                         <label>Component Type</label>
                     </div>
                     <div class="input-field">
                         <select name="cmpmethod">
-                            <option value="" disabled selected>Choose your option</option>
-                            <!-- for method of componentMethods --> 
-                            <option value="resize_width">resize_width</option>
-                            <option value="resize_height">resize_height</option>
-                            <option value="resize_with_value">resize_with_value</option>
-                            <option value="resize_with_ratio">resize_with_ratio</option>
-                            <!-- endfor -->                             
+                            <option value="" disabled {% if component.selected_method == "" %}selected{% endif %}>Choose your option</option>
+                            {% for method in component.methods %}                            
+                            <option value="{{ method}}" {% if method == component.selected_method %}selected{% endif %}>{{ method }}</option>
+                            {% endfor %}                            
                         </select>
                         <label>Component Method</label>
                     </div>
-                    <!-- for attribute of methodAttributes -->                     
+                    {% for attribute in component.attributes %}                                                
                     <div class="input-field">
-                        <input value="400" type="text" name="width" class="validate"> <!-- set attibute type-->
-                        <label class="active" for="width">Width</label> <!-- set attribute name -->
+                        <input value="{{attribute.value}}" type="{{attribute.type}}" name="{{attribute.name}}" class="validate">
+                        <label class="active" for="{{attribute.name}}">{{attribute.label}}</label>
                     </div>
-                    <!-- endfor -->
+                    {% endfor %}                            
                     <button class="btn waves-effect waves-light" type="submit" name="update">Update</button>
                     <button class="btn waves-effect waves-light red" type="submit" name="delete">Delete</button>
                 </form>
             </div>
         </div>
-        <!-- endfor -->
+        {% endfor %}
 
         <div class="card">
             <div class="card-content">
                 <div class="card-content">
                     <span class="card-title">Add a new component</span>
                 </div>
-                <form>
+                <form action="addCmp" method="post">
                     <button class="btn waves-effect waves-light" type="submit" name="addcmp">Add</button>
                 </form>
             </div>

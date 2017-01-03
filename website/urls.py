@@ -18,6 +18,7 @@ from django.contrib import admin
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.thepost, name='index'),
-    url(r'^thepost', views.thepost, name='thepost'),
+    url(r'^$', views.index, name='index'),
+    url(r'^updateCmp', views.updateCmp, name='updateCmp'),
+    url(r'^addCmp', views.addCmp, name='addCmp'),
 ]
