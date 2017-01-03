@@ -54,10 +54,16 @@ class Design:
 
         return {"cmps": cmps}
 
-    def get_cmp(self, id):
+    def get_cmp(self, cid):
         for x in self.cmps:
-            if x.id == id:
+            if x.id == cid:
                 return x.component
+        raise Exception(id + ' not found')
+
+    def get_entry(self, cid):
+        for x in self.cmps:
+            if x.id == cid:
+                return x
         raise Exception(id + ' not found')
 
     def remove(self, id):

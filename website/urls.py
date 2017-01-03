@@ -22,5 +22,6 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^updateCmp', views.updateCmp, name='updateCmp'),
     url(r'^addCmp', views.addCmp, name='addCmp'),
+    url(r'^reset', views.reset, name='reset'),
     url(r'^imageButton', button.imageButton, name='imageButton'),
 ]

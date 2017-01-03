@@ -22,7 +22,7 @@ class Fx():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return [('adj', 'int')]
+        return [('adj', 'int', ['level', 'gamma'])]
 
     def __setitem__(self, key, item):
         #        if not (key == "width" or key == "height"):

@@ -1,114 +1,113 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import TemplateView
-from django import forms
 import logging
+import json
 import random
 import string
-
-
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+from django.shortcuts import render_to_response
+from django.http import HttpResponseRedirect
+from . import design
+from . import application
 
 logger = logging.getLogger(__name__)
 
-lastid = 2
-
-types = [{'name': 'Fx', 'value': 'fx'},
-         {'name': 'Resize', 'value': 'resize'},
-         {'name': 'Rotate', 'value': 'rotate'},
-         {'name': 'Crop', 'value': 'crop'}]
-components = [{
-    'id': id_generator(),
-    'type': 'fx',
-    'methods': ['resize_width',
-                'resize_height',
-                'resize_with_value',
-                'resize_with_ratio'],
-    'selected_method':'resize_with_value',
-    'attributes': [{
-        'value': 400,
-        'type': 'number',
-        'name': 'width',
-        'label': 'Width'
-    }],
-}, {
-    'id': id_generator(),
-    'type': 'crop',
-    'methods': ['resize_width',
-                'resize_height',
-                'resize_with_value',
-                'resize_with_ratio'],
-    'selected_method':'',
-    'attributes': [{
-        'value': 400,
-        'type': 'number',
-        'name': 'width',
-        'label': 'Width'
-    }, {
-        'value': 300,
-        'type': 'number',
-        'name': 'height',
-        'label': 'Height'
-    }],
-}]
-thedata = {'component_types': types, 'components': components}
+COOKIE_DESIGN = "design"
 
 
-class ComponentUpdate(forms.Form):
-    cmpid = forms.CharField(required=True)
-    cmptype = forms.CharField()
-    cmpmethod = forms.CharField()
+def load_app(request):
+    ap = application.Application()
+    for av in ap.avaliable():
+        ap.load(av)
+
+    types = []
+    loaded = ap.loaded()
+    for t in loaded:
+        types.append({'value': t, 'name': t.title().replace(
+            '_', ' '), 'description': loaded[t]})
+
+    cdesign = request.COOKIES.get('design')
+    if cdesign is None:
+        d = design.Design()
+        cdesign = json.dumps(d.json())
+
+    ap.loadDesignObj(json.loads(cdesign))
+    cmps = []
+    for c in ap.design.cmps:
+        ccc = {'id': c.id, 'type': c.cmp_name, 'selected_method': c.method}
+        mlist = []
+        for m in c.component.methods():
+            mlist.append(m[0])
+        ccc['methods'] = mlist
+        atts = []
+        for a in c.component.attributes():
+            if c.method in a[2]:
+                att = {
+                    'type': 'number',
+                    'name': a[0],
+                    'label': a[0].title().replace('_', ' ')
+                }
+                try:
+                    val = c.component[a[0]]
+                    att['value'] = val
+                except:
+                    att['value'] = 0
+                atts.append(att)
+        ccc['attributes'] = atts
+        cmps.append(ccc)
+    return ap, {'component_types': types, 'components': cmps}
 
 
 def updateCmp(request):
-    print "thepost request", request
+    blacklist = ['cmpid', 'cmptype', 'cmpmethod', 'update', 'delete']
+    app, _ = load_app(request)
     if request.method == 'POST':
         print request.POST
-        form = ComponentUpdate(request.POST)
-        if form.is_valid():
-            cmpid = request.POST['cmpid']
-            cmptype = request.POST['cmptype']
-            cmpmethod = request.POST['cmpmethod']
-            print "thepost form is valid", cmpid, ":", cmptype, ':', cmpmethod
-            if 'update' in request.POST:
-                print "update"
-                for c in components:
-                    if c['id'] == cmpid:
-                        c['type'] = cmptype
-                        c['selected_method'] = cmpmethod
-                        break
-            elif 'delete' in request.POST:
-                print "delete"
-                idx = [i for i, a in enumerate(components) if a[
-                    'id'] == cmpid][0]
-                print idx
-        else:
-            print "thepost is not valid", form
-    return HttpResponseRedirect('/')
+        cmpid = request.POST['cmpid']
+        cmptype = request.POST['cmptype']
+        if 'update' in request.POST:
+            try:
+                comp = app.design.get_entry(cmpid)
+                if not cmptype == comp.cmp_name:
+                    app.removeInstance(cmpid)
+                    ncmpid = app.addInstance(cmptype, comp.index, '')
+                    comp = app.design.get_entry(ncmpid)
+                    comp.id = cmpid
+                if 'cmpmethod' in request.POST:
+                    cmpmethod = request.POST['cmpmethod']
+                    if not cmpmethod == comp.method:
+                        mlist = map(lambda x: x[0], comp.component.methods())
+                        if cmpmethod in mlist:
+                            comp.method = cmpmethod
+                        else:
+                            comp.method = ''
+                for f in request.POST:
+                    if not f in blacklist:
+                        comp.component[f] = int(request.POST[f])
+            except:
+                print "no", cmpid
+        elif 'delete' in request.POST:
+            app.removeInstance(cmpid)
+
+    response = HttpResponseRedirect('/')
+    response.set_cookie(COOKIE_DESIGN, json.dumps(app.design.json()))
+    return response
 
 
 def addCmp(request):
-    print "thepost request", request
-    if request.method == 'POST':
-        print request.POST
-    components.append({
-        'id': id_generator(),
-        'type': '',
-        'methods': ['resize_width',
-                    'resize_height',
-                    'resize_with_value',
-                    'resize_with_ratio'],
-        'selected_method': '',
-        'attributes': [{
-            'value': 400,
-            'type': 'number',
-            'name': 'width',
-            'label': 'Width'
-        }],
-    })
-    return HttpResponseRedirect('/')
+    ap, _ = load_app(request)
+    ap.addInstance(ap.loaded_component[0][0], len(ap.design.cmps), '')
+    response = HttpResponseRedirect('/')
+    response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
+    return response
 
 
 def index(request):
-    return render(request, 'mat.html', thedata)
+    ap, data = load_app(request)
+    print data
+    response = render_to_response('mat.html', data)
+    response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
+    return response
+
+
+def reset(request):
+    response = HttpResponseRedirect('/')
+    response.set_cookie(COOKIE_DESIGN, '{"cmps":[]}')
+    return response

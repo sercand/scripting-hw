@@ -22,9 +22,10 @@ class Crop():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return [('left', 'int'),('top', 'int'),('width', 'int'), ('height', 'int'), ('center', 'str')]
+        return [('left', 'int',['crop']),('top', 'int',['crop']),('width', 'int',['crop','crop_on_center']), ('height', 'int',['crop','crop_on_center']), ('center', 'str',['crop_on_center'])]
 
     def __setitem__(self, key, item):
+        print "crop set imte",key,item
         if not (key == "left" or key == "top" or key == "width" or key == "height" or key == "center"):
             raise Exception(key + ' key is invalid')
         if key != "center" and not isinstance(item, int):

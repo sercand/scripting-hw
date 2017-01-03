@@ -87,9 +87,9 @@ class Application:
         with open(path, 'r') as f:
             d = json.load(f)
             self.loadDesignObj(d)
-    
-    def loadDesignObj(self,obj):
-        cmps = []        
+
+    def loadDesignObj(self, obj):
+        cmps = []
         for x in obj['cmps']:
             # load component
             r = self.load(x['cmp'])
@@ -106,7 +106,7 @@ class Application:
             de.method = x['method']
             # add to list
             cmps.append(de)
-        self.design.cmps = cmps        
+        self.design.cmps = cmps
 
     def saveDesign(self, path):
         """
