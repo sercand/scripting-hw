@@ -75,17 +75,17 @@
                     <span class="card-title">Upload Image</span>
                 </div>
                 <form action="imageButton" method="post" enctype="multipart/form-data">
-                    <div class="file-field input-field">
-                        <div class="btn">
-                            <span>File</span>
-                            <input type="file" name "image">
-                        </div>
-                        <div class="file-path-wrapper">
-                            <input class="file-path validate" type="text">
-                        </div>
-                    </div>
-                    <button class="btn waves-effect waves-light yellow darken-1 black-text" type="submit">Add</button>
-                </form>
+            <p>{{ form.non_field_errors }}</p>
+
+            <p>{{ form.docfile.label_tag }} {{ form.docfile.help_text }}</p>
+
+            <p>
+                {{ form.docfile.errors }}
+                {{ form.docfile }}
+            </p>
+
+            <p><input type="submit" value="Upload"/></p>
+        </form>
             </div>
         </div>
     </div>

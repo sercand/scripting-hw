@@ -6,63 +6,13 @@ import logging
 import random
 import string
 import tempfile
+from django.db import models
 
-
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
-
-logger = logging.getLogger(__name__)
-
-lastid = 2
-
-types = [{'name': 'Fx', 'value': 'fx'},
-         {'name': 'Resize', 'value': 'resize'},
-         {'name': 'Rotate', 'value': 'rotate'},
-         {'name': 'Crop', 'value': 'crop'}]
-components = [{
-    'id': id_generator(),
-    'type': 'fx',
-    'methods': ['resize_width',
-                'resize_height',
-                'resize_with_value',
-                'resize_with_ratio'],
-    'selected_method':'resize_with_value',
-    'attributes': [{
-        'value': 400,
-        'type': 'number',
-        'name': 'width',
-        'label': 'Width'
-    }],
-}, {
-    'id': id_generator(),
-    'type': 'crop',
-    'methods': ['resize_width',
-                'resize_height',
-                'resize_with_value',
-                'resize_with_ratio'],
-    'selected_method':'',
-    'attributes': [{
-        'value': 400,
-        'type': 'number',
-        'name': 'width',
-        'label': 'Width'
-    }, {
-        'value': 300,
-        'type': 'number',
-        'name': 'height',
-        'label': 'Height'
-    }],
-}]
-thedata = {'component_types': types, 'components': components}
-
-
-class ComponentUpdate(forms.Form):
-    cmpid = forms.CharField(required=True)
-    cmptype = forms.CharField()
-    cmpmethod = forms.CharField()
+class Document(models.Model):
+    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
 
 class UploadFileForm(forms.Form):
-    file = forms.FileField()
+    image = forms.FileField()
 
 def handle_uploaded_file(f):
     tmp = tempfile.NamedTemporaryFile()
@@ -73,17 +23,10 @@ def handle_uploaded_file(f):
 def imageButton(request):
     print "HERE I AM"
     if request.method == 'POST':
-        myfile = request.FILES['image']
-        handle_uploaded_file(myfile)
-    return HttpResponseRedirect('/')
-""""
         form = UploadFileForm(request.POST, request.FILES)
-        print request.POST, request.FILES
-        print form
+        print form.errors
         if form.is_valid():
-            print "IS VALID"
-            handle_uploaded_file(request.FILES['image'])
-            return HttpResponseRedirect('/success/url/')
-    else:
-        form = UploadFileForm()
-    return HttpResponseRedirect('/')"""
+            print "aaaaaaa"
+            newdoc = Document(docfile=request.FILES['image'])
+            newdoc.save()
+    return HttpResponseRedirect('/')

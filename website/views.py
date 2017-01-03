@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from . import design
 from . import application
-
+from . import button
 logger = logging.getLogger(__name__)
 
 COOKIE_DESIGN = "design"
@@ -102,6 +102,7 @@ def addCmp(request):
 def index(request):
     ap, data = load_app(request)
     print data
+    data["form"]=button.UploadFileForm()
     response = render_to_response('mat.html', data)
     response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
     return response
