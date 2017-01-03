@@ -6,7 +6,6 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from . import design
 from . import application
-from . import button
 logger = logging.getLogger(__name__)
 
 COOKIE_DESIGN = "design"
@@ -39,10 +38,35 @@ def load_app(request):
         atts = []
         for a in c.component.attributes():
             if c.method in a[2]:
+                atype = 'number'
+                inputtype = 'int'
+                props = {}
+                try:
+                    props = a[3]
+                    if props is None:
+                        props = {}
+                except:
+                    print ""
+
+                if a[1] == 'str':
+                    atype = 'text'
+                    inputtype = 'text'
+                    if 'enum' in props:
+                        inputtype = 'enum'
+                elif a[1] == 'float':
+                    atype = 'number'
+                    inputtype = 'float'
+                elif a[1] == 'int':
+                    atype = 'number'
+                    inputtype = 'int'
+                    props['step'] = 1
+
                 att = {
-                    'type': 'number',
+                    'type': atype,
+                    'inputtype': inputtype,
                     'name': a[0],
-                    'label': a[0].title().replace('_', ' ')
+                    'label': a[0].title().replace('_', ' '),
+                    'props': props,
                 }
                 try:
                     val = c.component[a[0]]
@@ -78,9 +102,18 @@ def updateCmp(request):
                             comp.method = cmpmethod
                         else:
                             comp.method = ''
+                atts = comp.component.attributes()
                 for f in request.POST:
                     if not f in blacklist:
-                        comp.component[f] = int(request.POST[f])
+                        for a in atts:
+                            if a[0] == f:
+                                if a[1] == 'int':
+                                    comp.component[f] = int(request.POST[f])
+                                elif a[1] == 'float':
+                                    comp.component[f] = float(request.POST[f])
+                                else:
+                                    comp.component[f] = request.POST[f]
+                                break
             except:
                 print "no", cmpid
         elif 'delete' in request.POST:
@@ -101,8 +134,6 @@ def addCmp(request):
 
 def index(request):
     ap, data = load_app(request)
-    print data
-    data["form"]=button.UploadFileForm()
     response = render_to_response('mat.html', data)
     response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
     return response

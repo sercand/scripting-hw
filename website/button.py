@@ -6,12 +6,9 @@ import logging
 import random
 import string
 import tempfile
-from django.db import models
-
-
-
-class Document(models.Model):
-    docfile = models.FileField(upload_to='documents/%Y/%m/%d')
+from . import views
+from os.path import basename
+import os
 
 class UploadFileForm(forms.Form):
     image = forms.FileField()
@@ -22,17 +19,20 @@ def handle_uploaded_file(f):
     with open( tmp, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+    return tmp
 
 def imageButton(request):
-    print "HERE I AM"
     if request.method == 'POST':
+        app,_=views.load_app(request)
         form = UploadFileForm(request.POST, request.FILES)
-        print request.POST, request.FILES
-        print form
         if form.is_valid():
-            print "IS VALID"
-            handle_uploaded_file(request.FILES['image'])
-            return HttpResponseRedirect('/')
-    else:
-        form = UploadFileForm()
+            inputfile = handle_uploaded_file(request.FILES['image'])
+            ff= str(request.FILES[u'image']).split('.')                        
+            out='static/output/'+basename(inputfile)+"."+ff[-1]
+            try:
+                app.execute(inputfile,out)
+                os.remove(inputfile)
+                return HttpResponseRedirect('/'+out)
+            except:
+                print "failed to process" 
     return HttpResponseRedirect('/')

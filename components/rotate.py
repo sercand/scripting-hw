@@ -23,7 +23,7 @@ class Rotate():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return [('degree', 'int', ['rotate']), ('background', 'str', ['rotate'])]
+        return [('degree', 'int', ['rotate', 'rotate_with_background']), ('background', 'str', ['rotate_with_background'])]
 
     def __setitem__(self, key, item):
         if not (key == "degree" or key == "background"):

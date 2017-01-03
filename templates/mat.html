@@ -45,11 +45,23 @@
                         </select>
                         <label>Component Method</label>
                     </div>
-                    {% for attribute in component.attributes %}                                                
+                    {% for attribute in component.attributes %}
+                    {% if attribute.inputtype == "enum" %}
                     <div class="input-field">
-                        <input value="{{attribute.value}}" type="{{attribute.type}}" name="{{attribute.name}}" class="validate">
+                        <select name="{{attribute.name}}">
+                            <option value="" disabled {% if attribute.value == "" %}selected{% endif %}>Choose your option</option>
+                            {% for type in attribute.props.enum  %}                                              
+                            <option value="{{ type }}" {% if type == attribute.value %}selected{% endif %}>{{ type }}</option>
+                            {% endfor %}
+                        </select>
+                        <label>{{attribute.label}}</label>
+                    </div>
+                    {% else %}                    
+                    <div class="input-field">
+                        <input value="{{attribute.value}}" type="{{attribute.type}}" name="{{attribute.name}}" step="0.01" class="validate">
                         <label class="active" for="{{attribute.name}}">{{attribute.label}}</label>
                     </div>
+                    {% endif %}
                     {% endfor %}                            
                     <button class="btn waves-effect waves-light" type="submit" name="update">Update</button>
                     <button class="btn waves-effect waves-light red" type="submit" name="delete">Delete</button>
@@ -74,7 +86,7 @@
                 <div class="card-content white-text">
                     <span class="card-title">Upload Image</span>
                 </div>
-                <form action="imageButton" method="post" enctype="multipart/form-data">
+                <form action="imageButton" method="post" enctype="multipart/form-data" target="_blank">
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>File</span>
@@ -84,7 +96,7 @@
                             <input class="file-path validate" type="text">
                         </div>
                     </div>
-                    <button class="btn waves-effect waves-light yellow darken-1 black-text" type="submit">Add</button>
+                    <button class="btn waves-effect waves-light yellow darken-1 black-text" type="submit">Execute</button>
                 </form>
             </div>
         </div>

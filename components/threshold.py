@@ -22,7 +22,11 @@ class Threshold():
         For example an RSS reader component may get the url of the RSS feed and number of most 
         recent messages to display as attributes. attributes should return [(’url’,’string’),(’msgcount’,’int’)].
         """
-        return [('factor', 'float',['threshold']), ('channel', 'str',['threshold'])]
+        return [('factor', 'float',['threshold'],{'min':0,'max':1,'step':0.01}), ('channel', 'str',['threshold'],{'enum':[ 'red',
+        'gray',
+        'blue',
+        'yellow',
+        'rgb_channels']})]
 
     def __setitem__(self, key, item):
         if not (key == "factor" or key == "channel"):
