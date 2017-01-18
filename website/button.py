@@ -30,8 +30,10 @@ def imageButton(request):
             ff= str(request.FILES[u'image']).split('.')                        
             out='static/output/'+basename(inputfile)+"."+ff[-1]
             try:
+                print 'ha'
                 app.execute(inputfile,out)
-                os.remove(inputfile)
+                print 'ho'
+                #os.remove(inputfile)
                 return HttpResponseRedirect('/'+out)
             except:
                 print "failed to process" 
