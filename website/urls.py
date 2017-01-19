@@ -18,12 +18,20 @@ from django.contrib import admin
 from . import views
 from . import button
 from . import rest
+from .models import Design
+
+admin.site.register(Design)
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^admin/', admin.site.urls),
     url(r'^updateCmp', views.updateCmp, name='updateCmp'),
     url(r'^addCmp', views.addCmp, name='addCmp'),
     url(r'^reset', views.reset, name='reset'),
     url(r'^imageButton', button.imageButton, name='imageButton'),
-    url(r'^allComponents', rest.allComponents, name='allComponents')
+    url(r'^allComponents', rest.allComponents, name='allComponents'),
+    url(r'^newDesign', rest.newDesign, name='new'),
+    url(r'^design/(?P<theid>[\w-]+)', rest.getDesign, name='get'),
+    url(r'^calculate', rest.calculate, name='calculate'),
+    url(r'^upload', button.uploadImage, name='upload'),
 ]

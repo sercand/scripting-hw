@@ -11,7 +11,12 @@ from os.path import basename
 import os
 
 class UploadFileForm(forms.Form):
-    image = forms.FileField()
+    image = forms.FileInput()
+    designid = forms.CharField()
+
+class UploadFileForm2(forms.Form):
+    image = forms.ImageField(widget=forms.FileInput())
+    id = forms.CharField()
 
 def handle_uploaded_file(f):
     _,tmp = tempfile.mkstemp()
@@ -35,4 +40,16 @@ def imageButton(request):
                 return JsonResponse({'picture':'/'+out})
             except:
                 print "failed to process" 
+    return JsonResponse({'error':'POST with a file required'})
+
+def uploadImage(request):
+    print request.method 
+    if request.method == 'POST':
+        form = UploadFileForm2(request.POST, request.FILES)
+        if form.is_valid():
+            inputfile = handle_uploaded_file(request.FILES['image'])
+            ff = str(request.FILES[u'image']).split('.')
+            out = 'static/incoming/'+ request.POST['id']+"."+ff[-1]
+            os.rename(inputfile, out)
+            return JsonResponse({'picture':'/'+out})
     return JsonResponse({'error':'POST with a file required'})

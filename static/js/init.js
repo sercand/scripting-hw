@@ -4,9 +4,12 @@ function saveComponent() {
 }
 
 function getAllComponentsAndMethods() {
-  $.get("allComponents", function (data) {
-    console.log(data)
+  $.get('newDesign', function (data) {
+    console.log(data);
   })
+  /*  $.get("allComponents", function (data) {
+      console.log(data)
+    })*/
 }
 
 function execute() {
