@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.views.generic import TemplateView
 from django import forms
 import logging
@@ -23,18 +23,16 @@ def handle_uploaded_file(f):
 
 def imageButton(request):
     if request.method == 'POST':
-        app,_=views.load_app(request)
+        app, _ = views.load_app(request)
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             inputfile = handle_uploaded_file(request.FILES['image'])
-            ff= str(request.FILES[u'image']).split('.')                        
+            ff= str(request.FILES[u'image']).split('.')
             out='static/output/'+basename(inputfile)+"."+ff[-1]
             try:
-                print 'ha'
                 app.execute(inputfile,out)
-                print 'ho'
-                #os.remove(inputfile)
-                return HttpResponseRedirect('/'+out)
+                os.remove(inputfile)
+                return JsonResponse({'picture':'/'+out})
             except:
                 print "failed to process" 
-    return HttpResponseRedirect('/')
+    return JsonResponse({'error':'POST with a file required'})

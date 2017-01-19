@@ -17,6 +17,7 @@
             <ul class="right hide-on-med-and-down">
                 
                 <li><a href="/reset"><i class="material-icons">clear</i></a></li>
+                <li><a><i id="saveBtn" class="material-icons">save</i></a></li>                
             </ul>
         </div>
     </nav>
@@ -24,11 +25,15 @@
     <div class="container">
         {% for component in components %}
         <div class="card">
+            <div class="card horizontal">
+                <div class="card-image">
+                    <img src="http://lorempixel.com/100/190/nature/6">
+            </div>
             <div class="card-content">
-                <form action="updateCmp" method="post">
+                <form action="updateCmp" method="post" name="{{component.id}}" >
                     <input value="{{component.id}}" type="text" name="cmpid" style="display: none;">                    
-                    <div class="input-field">
-                        <select name="cmptype" onchange="this.form.submit()">
+                    <div class="input-field" style="min-height: 40px">
+                        <select name="cmptype" onchange="this.form.submit()" style="display: none;">
                             <option value="" disabled {% if component.type == "" %}selected{% endif %}>Choose your option</option>
                             {% for type in component_types %}                                              
                             <option value="{{ type.value}}" {% if type.value == component.type %}selected{% endif %}>{{ type.name}}</option>
@@ -36,8 +41,8 @@
                         </select>
                         <label>Component Type</label>
                     </div>
-                    <div class="input-field" >
-                        <select name="cmpmethod" onchange="this.form.submit()">
+                    <div class="input-field" style="min-height: 40px">
+                        <select name="cmpmethod" onchange="this.form.submit()" style="display: none;">
                             <option value="" disabled {% if component.selected_method == "" %}selected{% endif %}>Choose your option</option>
                             {% for method in component.methods %}                            
                             <option value="{{ method}}" {% if method == component.selected_method %}selected{% endif %}>{{ method }}</option>
@@ -86,7 +91,7 @@
                 <div class="card-content white-text">
                     <span class="card-title">Upload Image</span>
                 </div>
-                <form action="imageButton" method="post" enctype="multipart/form-data" target="_blank">
+                <form method="post" enctype="multipart/form-data" name="fileupload">
                     <div class="file-field input-field">
                         <div class="btn">
                             <span>File</span>
@@ -97,8 +102,10 @@
                         </div>
                     </div>
                     <button class="btn waves-effect waves-light yellow darken-1 black-text" type="submit">Execute</button>
+                    <div id="execute-result" ></div>
                 </form>
             </div>
+        </div>
         </div>
     </div>
 

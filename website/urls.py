@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from . import views
 from . import button
+from . import rest
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
@@ -24,4 +25,5 @@ urlpatterns = [
     url(r'^addCmp', views.addCmp, name='addCmp'),
     url(r'^reset', views.reset, name='reset'),
     url(r'^imageButton', button.imageButton, name='imageButton'),
+    url(r'^allComponents', rest.allComponents, name='allComponents')
 ]

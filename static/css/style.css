@@ -12,3 +12,8 @@
 .icon-block .material-icons {
 	font-size: inherit;
 }
+
+.output-image{
+  max-width: 400px;
+  max-height: 300px;
+}
