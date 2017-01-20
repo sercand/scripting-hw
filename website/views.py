@@ -6,9 +6,29 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from . import design
 from . import application
+from . import models
+
 logger = logging.getLogger(__name__)
 
 COOKIE_DESIGN = "design"
+COOKIE_DESIGNID = "id"
+
+
+def load_design(request):
+    cdesign = request.COOKIES.get(COOKIE_DESIGN)
+    cdesignid = request.COOKIES.get(COOKIE_DESIGNID)
+    if cdesign is None:
+        if not cdesignid is None:
+            try:
+                d = models.Design.objects.filter(id=cdesignid)[0]
+                return json.loads(d.data), cdesignid
+            except:
+                d = design.Design()
+                return d.json(), None
+        else:
+            d = design.Design()
+            return d.json(), None
+    return json.loads(cdesign), cdesignid
 
 
 def load_app(request):
@@ -22,12 +42,11 @@ def load_app(request):
         types.append({'value': t, 'name': t.title().replace(
             '_', ' '), 'description': loaded[t]})
 
-    cdesign = request.COOKIES.get('design')
-    if cdesign is None:
-        d = design.Design()
-        cdesign = json.dumps(d.json())
-
-    ap.loadDesignObj(json.loads(cdesign))
+    cdesign, cdesignid = load_design(request)
+    try:
+        ap.loadDesignObj(cdesign)
+    except Exception as e:
+        logger.error(e)
     cmps = []
     for c in ap.design.cmps:
         ccc = {'id': c.id, 'type': c.cmp_name, 'selected_method': c.method}
@@ -76,12 +95,12 @@ def load_app(request):
                 atts.append(att)
         ccc['attributes'] = atts
         cmps.append(ccc)
-    return ap, {'component_types': types, 'components': cmps}
+    return ap, cdesignid, {'component_types': types, 'components': cmps}
 
 
 def updateCmp(request):
     blacklist = ['cmpid', 'cmptype', 'cmpmethod', 'update', 'delete']
-    app, _ = load_app(request)
+    app, did, _ = load_app(request)
     if request.method == 'POST':
         print request.POST
         cmpid = request.POST['cmpid']
@@ -124,25 +143,32 @@ def updateCmp(request):
                 print "no", cmpid
     response = HttpResponseRedirect('/')
     response.set_cookie(COOKIE_DESIGN, json.dumps(app.design.json()))
+    if not did is None:
+        response.set_cookie(COOKIE_DESIGNID, did)
     return response
 
 
 def addCmp(request):
-    ap, _ = load_app(request)
+    ap, did, _ = load_app(request)
     ap.addInstance(ap.loaded_component[0][0], len(ap.design.cmps), '')
     response = HttpResponseRedirect('/')
     response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
+    if not did is None:
+        response.set_cookie(COOKIE_DESIGNID, did)
     return response
 
 
 def index(request):
-    ap, data = load_app(request)
+    ap, did, data = load_app(request)
     response = render_to_response('mat.html', data)
     response.set_cookie(COOKIE_DESIGN, json.dumps(ap.design.json()))
+    if not did is None:
+        response.set_cookie(COOKIE_DESIGNID, did)
     return response
 
 
 def reset(request):
     response = HttpResponseRedirect('/')
     response.set_cookie(COOKIE_DESIGN, '{"cmps":[]}')
+    response.delete_cookie(COOKIE_DESIGNID)
     return response

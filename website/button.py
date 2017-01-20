@@ -12,7 +12,6 @@ import os
 
 class UploadFileForm(forms.Form):
     image = forms.FileInput()
-    designid = forms.CharField()
 
 class UploadFileForm2(forms.Form):
     image = forms.ImageField(widget=forms.FileInput())
@@ -28,7 +27,7 @@ def handle_uploaded_file(f):
 
 def imageButton(request):
     if request.method == 'POST':
-        app, _ = views.load_app(request)
+        app, _,_ = views.load_app(request)
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             inputfile = handle_uploaded_file(request.FILES['image'])
@@ -38,8 +37,8 @@ def imageButton(request):
                 app.execute(inputfile,out)
                 os.remove(inputfile)
                 return JsonResponse({'picture':'/'+out})
-            except:
-                print "failed to process" 
+            except Exception as e:
+                return JsonResponse({'error':'failed to process: {}'.format(e)})
     return JsonResponse({'error':'POST with a file required'})
 
 def uploadImage(request):

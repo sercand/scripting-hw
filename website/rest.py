@@ -1,20 +1,19 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.views.generic import TemplateView
-from django import forms
 import logging
 import random
 import string
 import tempfile
-from . import views
-from os.path import basename
 import os
-from .application import Application
 import json
+from django.shortcuts import render
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.views.generic import TemplateView
+from django import forms
+from os.path import basename
+from .application import Application
+from . import views
 from .models import Design
 from .design import id_generator
 from .design import Design as DesignObj
-from os import walk
 
 
 
@@ -37,11 +36,15 @@ def allComponents(request):
         cl = c[3]
         a = []
         for at in cl.attributes():
-            a.append({'name': at[0], 'type': at[1], 'required_by': at[2]})
+            props={}
+            if len(at) >= 4:
+                props=at[3];
+            a.append({'name': at[0], 'type': at[1], 'required_by': at[2], 'props': props})
         m = []
         for method in cl.methods():
             m.append({'name': method[0], 'descrition': method[1]})
         types.append({
+            'key': c[0],
             'name': c[0].title().replace('_', ' '),
             'description': cl.description(),
             'attributes': a,
@@ -50,11 +53,10 @@ def allComponents(request):
     return JsonResponse({'components': types})
 
 def get_previous_file(id):
-    for (dirpath, dirnames, filenames) in walk('static/incoming'):
+    for (dirpath, dirnames, filenames) in os.walk('static/incoming'):
         for f in filenames:
             if f.startswith(id):
                 ext = f.split('.')[-1]
-                print f,ext
                 return 'static/incoming/{}'.format(f), ext
     return "static/default.png","png"
 
@@ -73,10 +75,9 @@ def newDesign(request):
     do = DesignObj()
     nid = id_generator(10)
     jd = json.dumps(do.json())
-    d = Design(id=id_generator(10),data=jd)
-    d.save()
+    d = Design.objects.create(id=nid, data=jd)
     return JsonResponse({'id': nid,'design':do.json()})
-    
+
 def getDesign(request,theid):
     try:
         d = Design.objects.filter(id=theid)[0]
@@ -85,3 +86,17 @@ def getDesign(request,theid):
     except Exception as e:
         print e
         return JsonResponse({'error':'design not found'})
+
+def updateDesign(request):
+    try:
+        print request.body
+        data = json.loads(request.body)
+        theid = data['id']
+        design = data['design']
+        d = Design.objects.filter(id=theid)[0]
+        d.data = json.dumps(design)
+        d.save()
+        return JsonResponse({'id': theid,'design':design})
+    except Exception as e:
+        print e
+        return JsonResponse({'error':'failed to update: {}'.format(e)})

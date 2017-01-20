@@ -34,4 +34,5 @@ urlpatterns = [
     url(r'^design/(?P<theid>[\w-]+)', rest.getDesign, name='get'),
     url(r'^calculate', rest.calculate, name='calculate'),
     url(r'^upload', button.uploadImage, name='upload'),
+    url(r'^update', rest.updateDesign, name='update'),
 ]
