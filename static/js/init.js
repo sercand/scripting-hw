@@ -85,22 +85,52 @@ function redrawForm(data, newType, newMethod, form) {
   $('select').material_select();
 }
 
+function executeImage(compid) {
+  let des = {
+    cmps: []
+  }
+  for (let c of design.design.cmps) {
+    des.cmps.push(c);
+    if (c.id == compid) {
+      break;
+    }
+  }
+  let data = {
+    id: design.id,
+    design: des
+  }
+  console.log(data);
+  $.post('calculate', JSON.stringify(data), (s) => {
+    if (s.picture) {
+      $('img[name="' + compid + '"]').attr('src', s.picture)
+    }
+    console.log('calculate res', s)
+  }, 'json')
+}
+
 function updateCmp(data, form) {
   console.log('updateCmp', data)
   if (!design.design) {
     return
   }
+  let redrawed = false;
   for (let c of design.design.cmps) {
     if (c.id === data.id) {
       c.args = data.args;
       if (c.cmp !== data.cmp) {
+        redrawed = true;
         redrawForm(c, data.cmp, null, form);
       } else if (c.method !== data.method) {
+        redrawed = true;
         redrawForm(c, c.cmp, data.method, form);
       }
-      return
+      break;
     }
   }
+  if (redrawed) {
+    return
+  }
+  executeImage(data.id);
 }
 
 function deleteCmp(id) {
@@ -178,29 +208,28 @@ function resetDesign() {
 function execute() {
   var form = document.forms.namedItem("fileupload");
   form.addEventListener('submit', function (ev) {
-    var oOutput = document.getElementById('execute-result')
-    var oData = new FormData(form);
-
-    oData.append("CustomField", "This is some extra data");
-
-    var oReq = new XMLHttpRequest();
-    oReq.open("POST", "imageButton", true);
-    oOutput.innerHTML = "Loading..."
-    oReq.onload = function (oEvent) {
-      console.log(oReq);
-      if (oReq.status == 200) {
-        let result = JSON.parse(oReq.responseText)
-        if (typeof result.error === "undefined") {
-          oOutput.innerHTML = '<img class="output-image" src="' + result.picture + '" />'
+    saveDesign(() => {
+      var oOutput = document.getElementById('execute-result')
+      var oData = new FormData(form);
+      oData.append("CustomField", "This is some extra data");
+      var oReq = new XMLHttpRequest();
+      oReq.open("POST", "imageButton", true);
+      oOutput.innerHTML = "Loading..."
+      oReq.onload = function (oEvent) {
+        console.log(oReq);
+        if (oReq.status == 200) {
+          let result = JSON.parse(oReq.responseText)
+          if (typeof result.error === "undefined") {
+            oOutput.innerHTML = '<img class="output-image" src="' + result.picture + '" />'
+          } else {
+            oOutput.innerHTML = "Error:" + result.error;
+          }
         } else {
-          oOutput.innerHTML = "Error:" + result.error;
+          oOutput.innerHTML = "Error " + oReq.status + " occurred when trying to upload your file.<br \/>";
         }
-      } else {
-        oOutput.innerHTML = "Error " + oReq.status + " occurred when trying to upload your file.<br \/>";
-      }
-    };
-
-    oReq.send(oData);
+      };
+      oReq.send(oData);
+    })
     ev.preventDefault();
   }, false);
 }
@@ -226,26 +255,6 @@ function getCookie(cname) {
   return "";
 }
 
-function executeImage(compid) {
-  let data = {
-    id: 'asdasd',
-    design: {
-      cmps: [{
-
-      }]
-    }
-  }
-  $.ajax({
-    type: "POST",
-    url: "calculate",
-    data: data,
-    dataType: "application/json",
-    success: (s) => {
-      let result = JSON.parse(s)
-      console.log(result.picture)
-    },
-  });
-}
 String.prototype.replaceAll = function (search, replacement) {
   var target = this;
   return target.split(search).join(replacement);
