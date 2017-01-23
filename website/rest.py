@@ -4,7 +4,7 @@ import string
 import tempfile
 import os
 import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView
 from django import forms
@@ -14,7 +14,6 @@ from . import views
 from .models import Design
 from .design import id_generator
 from .design import Design as DesignObj
-
 
 
 def load_app(design):
@@ -100,3 +99,12 @@ def updateDesign(request):
     except Exception as e:
         print e
         return JsonResponse({'error':'failed to update: {}'.format(e)})
+
+def execute(request, theid):
+    d = Design.objects.filter(id=theid)[0]
+    data = json.loads(d.data)
+    ap = load_app(data)
+    inputfile,inputext=get_previous_file(theid)    
+    random = "static/output/"+id_generator(30)+"."+inputext
+    ap.execute(inputfile, random)
+    return redirect('/'+random)

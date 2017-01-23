@@ -1,4 +1,6 @@
 /* Custom Stylesheet */
+
+
 /**
  * Use this file to override Materialize files so you can update
  * the core Materialize files in the future
@@ -7,13 +9,18 @@
  */
 
 .icon-block {
-  padding: 0 15px;
-}
-.icon-block .material-icons {
-	font-size: inherit;
+    padding: 0 15px;
 }
 
-.output-image{
-  max-width: 400px;
-  max-height: 300px;
+.icon-block .material-icons {
+    font-size: inherit;
+}
+
+.output-image {
+    max-width: 400px;
+    max-height: 300px;
+}
+
+.invalid-card {
+    box-shadow: 0px 0px 0px 2px rgba(255, 0, 0, 1);
 }

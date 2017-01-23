@@ -24,14 +24,12 @@ admin.site.register(Design)
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^edit/(?P<theid>[\w-]+)', views.edit, name='get'),    
     url(r'^admin/', admin.site.urls),
-    url(r'^updateCmp', views.updateCmp, name='updateCmp'),
-    url(r'^addCmp', views.addCmp, name='addCmp'),
-    url(r'^reset', views.reset, name='reset'),
-    url(r'^imageButton', button.imageButton, name='imageButton'),
     url(r'^allComponents', rest.allComponents, name='allComponents'),
     url(r'^newDesign', rest.newDesign, name='new'),
     url(r'^design/(?P<theid>[\w-]+)', rest.getDesign, name='get'),
+    url(r'^execute/(?P<theid>[\w-]+)', rest.execute, name='execute'),
     url(r'^calculate', rest.calculate, name='calculate'),
     url(r'^upload', button.uploadImage, name='upload'),
     url(r'^update', rest.updateDesign, name='update'),

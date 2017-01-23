@@ -83,6 +83,7 @@ function redrawForm(data, newType, newMethod, form) {
   }
 
   $('select').material_select();
+  executeImage(data.id);
 }
 
 function executeImage(compid) {
@@ -100,15 +101,27 @@ function executeImage(compid) {
     design: des
   }
   console.log(data);
-  $.post('calculate', JSON.stringify(data), (s) => {
+  $.post('/calculate', JSON.stringify(data), (s) => {
     if (s.picture) {
       $('img[name="' + compid + '"]').attr('src', s.picture)
     }
     console.log('calculate res', s)
-  }, 'json')
+    $('#' + compid).removeClass('invalid-card')
+  }, 'json').fail(function () {
+    $('#' + compid).addClass('invalid-card')
+  })
+}
+
+function setNotSaved(notsaved) {
+  if (notsaved) {
+    $("#logo-container").text("Image Pipeline **")
+  } else {
+    $("#logo-container").text("Image Pipeline")
+  }
 }
 
 function updateCmp(data, form) {
+  setNotSaved(true)
   console.log('updateCmp', data)
   if (!design.design) {
     return
@@ -130,7 +143,7 @@ function updateCmp(data, form) {
   if (redrawed) {
     return
   }
-  executeImage(data.id);
+  executeAll();
 }
 
 function deleteCmp(id) {
@@ -143,16 +156,16 @@ function deleteCmp(id) {
 
 function updateDesign(data, cb) {
   let str = JSON.stringify(data)
-  $.post('update', str, cb, 'json')
+  $.post('/update', str, cb, 'json')
   deleteCookie('design')
 }
 
 function saveDesign(cb) {
+  setNotSaved(false)
   if (!design.id) {
-    $.get('newDesign', function (data) {
+    $.get('/newDesign', function (data) {
       console.log('new design', data.id)
       design.id = data.id;
-      window.localStorage.setItem('id', data.id);
       updateDesign({ id: data.id, design: design.design }, (s) => {
         console.log(s);
         if (cb) {
@@ -179,7 +192,7 @@ function makeid() {
 }
 
 function getAllComponentsAndMethods() {
-  $.get("allComponents", function (data) {
+  $.get("/allComponents", function (data) {
     design.all = data;
   })
 }
@@ -199,45 +212,47 @@ function addComponent() {
 }
 
 function resetDesign() {
-  deleteCookie('design')
   deleteCookie('id')
-  window.localStorage.removeItem('id')
-  window.location.reload();
+  setTimeout(function () {
+    console.log(getCookie('id'));
+    window.location.href = '/';
+  }, 5);
+}
+
+function componentForm(f, id) {
+  f.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    $('#' + id).remove();
+    var index = design.design.cmps.findIndex((v) => {
+      return v.id === id
+    })
+    if (index >= 0) {
+      design.design.cmps.splice(index, 1);
+      saveDesign(() => {
+        executeAll();
+      });
+    }
+  }, false);
+}
+
+function executeAll() {
+  for (let i = 0; i < design.design.cmps.length; i++) {
+    var t = design.design.cmps[i];
+    executeImage(t.id);
+  }
 }
 
 function execute() {
-  var form = document.forms.namedItem("fileupload");
-  form.addEventListener('submit', function (ev) {
-    saveDesign(() => {
-      var oOutput = document.getElementById('execute-result')
-      var oData = new FormData(form);
-      oData.append("CustomField", "This is some extra data");
-      var oReq = new XMLHttpRequest();
-      oReq.open("POST", "imageButton", true);
-      oOutput.innerHTML = "Loading..."
-      oReq.onload = function (oEvent) {
-        console.log(oReq);
-        if (oReq.status == 200) {
-          let result = JSON.parse(oReq.responseText)
-          if (typeof result.error === "undefined") {
-            oOutput.innerHTML = '<img class="output-image" src="' + result.picture + '" />'
-          } else {
-            oOutput.innerHTML = "Error:" + result.error;
-          }
-        } else {
-          oOutput.innerHTML = "Error " + oReq.status + " occurred when trying to upload your file.<br \/>";
-        }
-      };
-      oReq.send(oData);
-    })
-    ev.preventDefault();
-  }, false);
+  for (let i = 0; i < document.forms.length; i++) {
+    let f = document.forms.item(i);
+    if (f.name == 'fileupload') { continue }
+    componentForm(f, f.name);
+  }
+  executeAll();
 }
+
 function deleteCookie(name) {
-  document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-}
-function setCookie(cname, cvalue) {
-  document.cookie = cname + "=" + cvalue;
+  document.cookie = name + '=; Path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }
 
 function getCookie(cname) {
@@ -260,32 +275,81 @@ String.prototype.replaceAll = function (search, replacement) {
   return target.split(search).join(replacement);
 };
 
+function handleDesignUpload() {
+  document.getElementById('fileinput').addEventListener('change', function () {
+    if (this.files.length !== 1) {
+      return;
+    }
+    var file = this.files[0];
+    var reader = new FileReader();
+    reader.onload = (e) => {
+      console.log(e);
+      try {
+        var obj = JSON.parse(e.target.result);
+        if (typeof obj.design !== "undefined") {
+          design.design = obj.design;
+          saveDesign(() => {
+            window.location.reload();
+          })
+        } else {
+          console.error("json file does not contain design", obj);
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    reader.readAsText(file);
+  }, false);
+}
+
+function sendFile(fileData) {
+  var formData = new FormData();
+
+  formData.append('image', fileData);
+  formData.append('id', design.id);
+
+  $.ajax({
+    type: 'POST',
+    url: '/upload',
+    data: formData,
+    contentType: false,
+    processData: false,
+    success: function (data) {
+      executeAll();
+    },
+    error: function (data) {
+      alert('There was an error uploading your file!');
+    }
+  });
+}
+
+function handleImageUpload() {
+  document.getElementById('imageupload').addEventListener('change', function () {
+    if (this.files.length !== 1) { return; }
+    let file = this.files[0]
+    saveDesign(() => {
+      sendFile(file);
+    })
+  }, false);
+}
+
 (function ($) {
   getAllComponentsAndMethods();
-  let d = getCookie('design')
-  if (d) {
-    try {
-      let rep = d.replaceAll('\\"', '"').replaceAll('\\054', ',')
-      rep = rep.substring(1, rep.length - 1)
-      let des = JSON.parse(rep)
-      design.design = des
-    } catch (ex) {
-      console.error(d, ex)
-    }
-  } else {
-    console.log("no design cookie")
-  }
-  design.id = window.localStorage.getItem('id')
-  if (getCookie('id') === "" && design.id !== null) {
-    setCookie('id', design.id)
-  }
+  design.design = JSON.parse(designObj);
+  design.id = designID;
+
   $(document).ready(function () {
     $('select').material_select();
     $('.tooltipped').tooltip({ delay: 50 });
     execute()
+    handleDesignUpload();
+    handleImageUpload();
     $('#saveBtn').click(() => { saveDesign(() => { }) });
     $("#addBtn").click(addComponent);
     $("#resetBtn").click(resetDesign);
+    $('form input').on('keypress', function (e) {
+      return e.which !== 13;
+    });
   })
 })(jQuery); // end of jQuery name space
 
